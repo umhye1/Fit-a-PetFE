@@ -11,7 +11,7 @@ const Container = styled.div`
 const TitleBox = styled.div`
     font-size: 1.2vw;
     font-weight: 600;
-    padding: 0.6vw 0vw 0vw 2vw;
+    padding: 0.5vw 0vw 0.2vw 3.75vw;
 `;
 
 const FriendBox = styled.div`
@@ -22,14 +22,16 @@ const FriendBox = styled.div`
 const PhotoContainer = styled.div`
     display: flex;
     flex-direction: row;
+    margin: 0.6vw 0vw 1.2vw 3.75vw;
+    width: 86.1vw;
+    justify-content: space-between;
 `;
 
 const PhotoBox = styled.div`
     width : 6.5vw;
     height: 6.5vw;
-    background-color: #F0F0EF;
+    background-color: #F3F4E3;
     border-radius: 20px;
-    margin: 1.4583vw;
 `;
 
 const RecommendWalkMate = () => {
