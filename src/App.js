@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 
 import Header from './components/Header/Header';
 import HeaderMenu from './components/HeaderMenu/HeaderMenu';
-// import TabBar from './components/TabBar/TabBar';
+import { Footer } from './components/Footer/Footer';
 
 import Feed from './pages/Community/Feed/Feed';
 import PetPhoto from './pages/Community/PetPhoto/PetPhoto';
@@ -51,6 +51,7 @@ function App() {
           <Route path="/feed" element={<Feed />} />
           <Route path="/petphoto" element={<PetPhoto />} />
         </Routes>
+        <Footer/>
       </Router>
     </>
   );

@@ -105,6 +105,10 @@ const Feed = () => {
                     <FeedTitle>안뇽ㅎㅎ</FeedTitle>
                     <FeedP>처음뵙겠습니당ㅋㅋ</FeedP>
                 </FeedBox>
+                <FeedBox>
+                    <FeedTitle>안뇽ㅎㅎ</FeedTitle>
+                    <FeedP>처음뵙겠습니당ㅋㅋ</FeedP>
+                </FeedBox>
             </FeedContainer>
         </MainContainer>
     </CommunityContainer>
