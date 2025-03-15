@@ -44,10 +44,14 @@ const CategroyP = styled.div`
 
 const PetPhotoContainer= styled.div`
     width: 100%;
-    background-color: lightgray;
     width: calc(100% - 19.2vw);
 `;
 
+const PetPhotoTitle = styled.div`
+    font-size: 1.2vw;
+    font-weight: 600;
+    padding: 2.19vw 1.5vw 0vw 1.5vw;
+`;
 
 
 const PetPhoto = () => {
@@ -59,6 +63,7 @@ const PetPhoto = () => {
                 <CategroyP>인기글</CategroyP>
             </CategroyContainer>
             <PetPhotoContainer>
+                <PetPhotoTitle>내 펫 뽐내기</PetPhotoTitle>
                 <Card/>
             </PetPhotoContainer>
 
