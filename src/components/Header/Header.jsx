@@ -78,13 +78,13 @@ const Menu1 = styled(NavLink)`
 const Menu2 = styled(NavLink)`
     font-size: 1vw;
     font-weight: 700;
-    border: 0.08vw solid black; 
+    border: 0.08vw solid #F3F4E3; 
     border-radius: 20px;
     padding : 0.3vw 0.9vw;
     margin : 0.6vw;
 
     text-decoration: none;
-    color: black;
+    color: #F3F4E3;
     &:visited { 
         color: #F3F4E3;
         border: 0.08vw solid #F3F4E3; 
