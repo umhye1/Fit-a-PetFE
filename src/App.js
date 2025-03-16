@@ -15,6 +15,9 @@ import ChatBox from './pages/ChatBox/ChatBox';
 import WalkBox from './pages/WalkBox/WalkBox';
 import Profile from './pages/Profile/Profile';
 
+import Login from './pages/Login/Login';
+import Signup from './pages/Login/Signup';
+
 
 
 function App() {
@@ -50,6 +53,8 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/feed" element={<Feed />} />
           <Route path="/petphoto" element={<PetPhoto />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup/>} />
         </Routes>
         <Footer/>
       </Router>
