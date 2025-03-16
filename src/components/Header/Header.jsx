@@ -124,7 +124,7 @@ const Header = ({onHover,closeMenu}) => {
         <LogoContainer to ="/" >fit-a-pet</LogoContainer>
 
         <MenuContainer2>
-            <Menu2>로그인</Menu2>
+            <Menu2 to = "/login">로그인</Menu2>
             <Menu2>산책기록함</Menu2>
         </MenuContainer2>
     </HeaderContainer>
