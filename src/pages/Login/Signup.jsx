@@ -59,7 +59,7 @@ const NameContainer =styled.div`
 `;
 
 const Name = styled.div`
-  padding-bottom: 1.6667vw;
+  padding-bottom: 1.8vw;
   .name {
     display: flex;
     width: 25vw;
@@ -78,7 +78,7 @@ const Name = styled.div`
 `;
 
 const Nickname = styled.div`
-  padding-bottom: 1.6667vw;
+  padding-bottom: 1.8vw;
   .nickname {
     display: flex;
     width: 25vw;
@@ -97,7 +97,7 @@ const Nickname = styled.div`
 `;
 
 const Birth = styled.div`
-  padding-bottom: 1.6667vw;
+  padding-bottom: 1.8vw;
   .birth {
     display: flex;
     width: 25vw;
@@ -116,7 +116,7 @@ const Birth = styled.div`
 `;
 
 const Password = styled.div`
-  padding-bottom: 1.6667vw;
+  padding-bottom: 1.8vw;
   .password {
     display: flex;
     width: 61.4583vw;
