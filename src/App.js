@@ -17,8 +17,10 @@ import Profile from './pages/Profile/Profile';
 
 import Login from './pages/Login/Login';
 import Signup from './pages/Login/Signup';
-
-
+import SignupFinish from './pages/Login/SignupFinish';
+import NewPassword from './pages/Login/NewPassword';
+import NewPasswordSuccess from './pages/Login/NewPasswordSuccess';
+import FindPassword from './pages/Login/FindPassword';
 
 function App() {
 
@@ -53,8 +55,13 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/feed" element={<Feed />} />
           <Route path="/petphoto" element={<PetPhoto />} />
+          
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup/>} />
+          <Route path="/signupFinish" element={<SignupFinish/>} />
+          <Route path="/findPassword" element={<FindPassword/>} />
+          <Route path="/newPassword" element={<NewPassword/>} />
+          <Route path="/newPassword/success" element={<NewPasswordSuccess/>} />
         </Routes>
         <Footer/>
       </Router>
