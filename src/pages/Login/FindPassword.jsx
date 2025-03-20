@@ -130,7 +130,7 @@ const VerificationCode = styled.div`
 }
 `;
 
-const NextButton = styled.div`
+const NextButton = styled(Link)`
     display: flex;
     justify-content: center;
 
@@ -289,14 +289,12 @@ const FindPassword = () => {
                     </JoinBox>
                 </JoinBoxContainer>
 
-                <NextButton>
-                    <Link to="/newPassword">
+                <NextButton to="/newPassword">
                     <input 
                         className='nextButton' 
                         type="submit" 
                         value="다음으로 넘어가기"
                         />
-                    </Link>
                 </NextButton>
                 
                 

@@ -6,6 +6,8 @@ import HeaderMenu from './components/HeaderMenu/HeaderMenu';
 import { Footer } from './components/Footer/Footer';
 
 import Feed from './pages/Community/Feed/Feed';
+import FeedWrite from './pages/Community/Feed/FeedWrite';
+import FeedPage from './pages/Community/Feed/FeedPage';
 import PetPhoto from './pages/Community/PetPhoto/PetPhoto';
 
 import Map from './pages/Map/Map';
@@ -53,7 +55,10 @@ function App() {
           <Route path="/map" element={<Map />} />
           <Route path="/walkbox" element={<WalkBox />} />
           <Route path="/profile" element={<Profile />} />
+
           <Route path="/feed" element={<Feed />} />
+          <Route path="/feedPage" element={<FeedPage />} />
+          <Route path="/feedWrite" element={<FeedWrite />} />
           <Route path="/petphoto" element={<PetPhoto />} />
           
           <Route path="/login" element={<Login />} />
