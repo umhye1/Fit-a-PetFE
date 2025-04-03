@@ -59,7 +59,7 @@ function App() {
           <Route path="/feed" element={<Feed />} />
           <Route path="/feedPage" element={<FeedPage />} />
           <Route path="/feedWrite" element={<FeedWrite />} />
-          <Route path="/petphoto" element={<PetPhoto />} />
+          <Route path="/petPhoto" element={<PetPhoto />} />
           
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup/>} />
