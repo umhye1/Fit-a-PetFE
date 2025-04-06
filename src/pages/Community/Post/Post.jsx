@@ -120,7 +120,7 @@ const Feed = () => {
     const navigate = useNavigate();
 
     const handleClick = () => {
-        navigate('/feedPage');  
+        navigate('/PostPage');  
     };
     
   return (
@@ -136,7 +136,7 @@ const Feed = () => {
             <FeedContainer>
                 <FeedBoxContainer>
                     <FeedBoxTitle>동네 생활 자유 게시판</FeedBoxTitle>
-                    <FeedWrite to="/feedWrite">새 글쓰기</FeedWrite>
+                    <FeedWrite to="/PostWrite">새 글쓰기</FeedWrite>
                 </FeedBoxContainer>
                 <FeedBox onClick={handleClick}>
                     <FeedTitle>안뇽ㅎㅎ</FeedTitle>

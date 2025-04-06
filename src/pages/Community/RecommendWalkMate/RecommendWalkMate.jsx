@@ -1,8 +1,8 @@
 import styled from 'styled-components'
 import { Link } from 'react-router-dom';
 import React, { useState } from 'react';
-import search1 from '../../../assets/images/search3.png'
-import search2 from '../../../assets/images/search4.png'
+import search1 from '../../../assets/images/search1.png'
+import search2 from '../../../assets/images/search2.png'
 
 const Container = styled.div`
 
