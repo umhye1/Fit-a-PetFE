@@ -10,13 +10,13 @@ import PostWrite from './pages/Community/Post/PostWrite';
 import PostPage from './pages/Community/Post/PostPage';
 
 import PetPost from './pages/Community/PetPost/PetPost';
-import { SearchMate } from './pages/Community/PetPost/SearchMate';
+import SearchMate from './pages/Community/PetPost/SearchMate';
 
 import Map from './pages/Map/Map';
 
 import Home from './pages/Home/Home';
 import ChatBox from './pages/ChatBox/ChatBox';
-import WalkBox from './pages/WalkBox/WalkBox';
+import Trail from './pages/Trail/Trail';
 import Profile from './pages/Profile/Profile';
 
 import Login from './pages/Login/Login';
@@ -55,7 +55,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/chatbox" element={<ChatBox />} />
           <Route path="/map" element={<Map />} />
-          <Route path="/walkbox" element={<WalkBox />} />
+          <Route path="/trail" element={<Trail />} />
           <Route path="/profile" element={<Profile />} />
 
           <Route path="/post" element={<Post />} />

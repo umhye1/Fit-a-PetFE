@@ -32,7 +32,7 @@ const SubTitile = styled.div`
 `;
 
 const SearchContainer = styled.div`
-    
+
 `;
 
 
@@ -46,3 +46,5 @@ export const SearchMate = () => {
     </Container>
   )
 }
+
+export default SearchMate
