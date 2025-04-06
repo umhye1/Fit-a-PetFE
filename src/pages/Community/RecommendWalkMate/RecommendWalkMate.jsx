@@ -174,6 +174,7 @@ const RecommendWalkMate = () => {
                     </PhotoBox>
 
                     <PhotoBox/>
+                    
                     <PhotoBox/>
                     <PhotoBox/>
                     <PhotoBox/>
