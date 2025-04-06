@@ -197,6 +197,7 @@ const RecommendWalkMate = () => {
                 산책 메이트, 성향 검색
                 <SearchImg src ={search2} alt = "SearchImg" style={{ marginLeft: 'auto' }}/>
             </SearchBarContainer>
+            
 
             <TagContainer>
 
