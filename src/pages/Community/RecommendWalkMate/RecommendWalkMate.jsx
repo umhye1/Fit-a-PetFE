@@ -234,4 +234,5 @@ const RecommendWalkMate = () => {
   )
 }
 
+//GIT BRANCH TEST
 export default RecommendWalkMate
