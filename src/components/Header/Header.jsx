@@ -108,7 +108,7 @@ const Header = ({onHover,closeMenu}) => {
         <HeaderContainer>
         <MenuContainer1 onClick={closeMenu}>
             <Menu1 
-                to = "/feed"
+                to = "/post"
                 onMouseEnter={()=> {onHover('feed')}}
                 onClick={closeMenu}>
                 커뮤니티

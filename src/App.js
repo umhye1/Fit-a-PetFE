@@ -5,10 +5,12 @@ import Header from './components/Header/Header';
 import HeaderMenu from './components/HeaderMenu/HeaderMenu';
 import { Footer } from './components/Footer/Footer';
 
-import Feed from './pages/Community/Feed/Feed';
-import FeedWrite from './pages/Community/Feed/FeedWrite';
-import FeedPage from './pages/Community/Feed/FeedPage';
-import PetPhoto from './pages/Community/PetPhoto/PetPhoto';
+import Post from './pages/Community/Post/Post';
+import PostWrite from './pages/Community/Post/PostWrite';
+import PostPage from './pages/Community/Post/PostPage';
+
+import PetPost from './pages/Community/PetPost/PetPost';
+import { SearchMate } from './pages/Community/PetPost/SearchMate';
 
 import Map from './pages/Map/Map';
 
@@ -56,11 +58,12 @@ function App() {
           <Route path="/walkbox" element={<WalkBox />} />
           <Route path="/profile" element={<Profile />} />
 
-          <Route path="/feed" element={<Feed />} />
-          <Route path="/feedPage" element={<FeedPage />} />
-          <Route path="/feedWrite" element={<FeedWrite />} />
-          <Route path="/petPhoto" element={<PetPhoto />} />
-          
+          <Route path="/post" element={<Post />} />
+          <Route path="/postPage" element={<PostPage />} />
+          <Route path="/postWrite" element={<PostWrite />} />
+          <Route path="/petPost" element={<PetPost />} />
+          <Route path="/searchMate" element={<SearchMate />} />
+
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup/>} />
           <Route path="/signupFinish" element={<SignupFinish/>} />

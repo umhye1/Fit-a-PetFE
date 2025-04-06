@@ -49,8 +49,8 @@ const HeaderMenu = ({hoveredComponent, onHover, onLeave, handleTouchEnd, handleT
             onTouchStart={(handleTouchStart)}
             onTouchEnd={(handleTouchEnd)}
         >
-            <Menu1 to ="/feed">피드</Menu1>
-            <Menu1 to ="/petphoto">내 펫 뽐내기</Menu1>
+            <Menu1 to ="/post">피드</Menu1>
+            <Menu1 to ="/petPost">내 펫 뽐내기</Menu1>
         </MenuContainer>
         }
 
