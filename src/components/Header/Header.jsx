@@ -125,7 +125,7 @@ const Header = ({onHover,closeMenu}) => {
 
         <MenuContainer2>
             <Menu2 to = "/login">로그인</Menu2>
-            <Menu2>산책기록함</Menu2>
+            <Menu2 to = "/trail">산책기록함</Menu2>
         </MenuContainer2>
     </HeaderContainer>
     </Container>
