@@ -186,11 +186,13 @@ const Trail = () => {
         <p style={{ fontSize: '1.2vw', color: '#3D8D7A', fontWeight: '700' }}> {date.toLocaleDateString()}</p>
             <BoxContainer>
                 <h1 style={{color: '#3D8D7A'}}>{formatTime(elapsedTime)}</h1>
+                
                 <ClockContainer>
                     <ClockButton onClick={handleStartStop}>{isRunning ? '중지' : '시작'}</ClockButton>
                     <ClockButton onClick={handleReset}>리셋</ClockButton>
                     <ClockButton onClick={handleLap} disabled={!isRunning}>랩</ClockButton>
                 </ClockContainer>
+
                 <ul>
                     {laps.map((lap, index) => (
                         <li key={index}>{formatTime(lap)}</li>
