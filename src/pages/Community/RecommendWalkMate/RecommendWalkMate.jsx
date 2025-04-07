@@ -74,7 +74,7 @@ const SearchContainer = styled.div`
     width: 100%;
     align-items: center;
     justify-content: center;
-    background-color: #A3D1C6
+    background-color: #A3D1C6;
 `;
 
 const SearchBarContainer = styled.div`
