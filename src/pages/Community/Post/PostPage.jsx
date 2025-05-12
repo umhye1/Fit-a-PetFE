@@ -22,14 +22,10 @@ const CategroyP = styled.div`
     padding: 0.7vw;
     font-weight: 600;
     font-size: 1vw;
-    &:visited { 
-        color: #3D8D7A;
-    }
-    &:hover { 
-        color: #3D8D7A; 
-    }
+    
+    &:hover,
     &:active { 
-        color: #3D8D7A;
+        color: #9DBD5D;
     }
 `;
 
@@ -73,7 +69,7 @@ const UserImg = styled.div`
     height: 4vw;
     border-radius: 50%;
     background: white;
-    border:0.06vw solid #3D8D7A;
+    border:0.06vw solid #99CC31;
 `;
 
 const UserContainer = styled.div`
@@ -100,7 +96,7 @@ const FeedPageContainer = styled.div`
     display: flex;
     flex-direction: column;
     margin: 0vw 5.9vw 1vw 0vw;
-    border-top: 0.06vw solid #3D8D7A;
+    border-top: 0.06vw solid #99CC31;
 `;
 
 const FeedPageBox = styled.div`
@@ -114,7 +110,7 @@ const CommentContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    border: 0.06vw solid #3D8D7A;
+    border: 0.06vw solid #99CC31;
     padding: 0.5vw 1vw 0.5vw;
     margin-bottom: 1.3vw;
 `;
@@ -126,7 +122,7 @@ const CommnetBox = styled.div`
     font-size: 0.9vw;
     font-weight: 500;
     padding: 0.5vw 0.5vw 0.5vw 2vw;
-    border-left: 0.06vw solid #3D8D7A;
+    border-left: 0.06vw solid #99CC31;
 `;
 
 const FeedPage = () => {

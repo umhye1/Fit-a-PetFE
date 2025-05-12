@@ -8,18 +8,20 @@ const HomeContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #FBFFE4;
+  background-color: #FFFFF0;
 `;
 
 const HomeTitle = styled.div`
   font-size: 5vw;
   font-weight: 800;
   padding: 15vw 0vw 3vw 0vw;
+  color: #4A4031;
 `;
 
 const HomeP = styled.div`
   font-size: 2vw;
   font-weight: 600;
+  color: #4A4031;
 `;
 
 export const Home = () => {

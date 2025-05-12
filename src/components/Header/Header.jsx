@@ -9,7 +9,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background-color: #3D8D7A;
+  background-color: #B8DD6D;
 `;
 
 const HeaderContainer = styled.div`
@@ -28,16 +28,13 @@ const LogoContainer = styled(NavLink)`
     justify-content: center;
     font-size: 2vw;
     font-weight: 600;
-    color: black; 
+    color: #2E2923;
     text-decoration: none;
-    &:visited { 
-        color: #F3F4E3;
-    }
-    &:hover { 
-        color: #F3F4E3; 
-    }
+
+
+    &:hover ,
     &:active { 
-        color: #F3F4E3; 
+        color: #4A4031;
     }
 `
 
@@ -62,15 +59,11 @@ const Menu1 = styled(NavLink)`
     margin : 0.6vw;
     
     text-decoration: none;
-    color: black;
-    &:visited { 
-        color: #F3F4E3;
-    }
-    &:hover { 
-        color: #F3F4E3; 
-    }
+    color: #2E2923;
+   
+    &:hover ,
     &:active { 
-        color: #F3F4E3; 
+        color: #4A4031;
     }
 
 `
@@ -78,24 +71,20 @@ const Menu1 = styled(NavLink)`
 const Menu2 = styled(NavLink)`
     font-size: 1vw;
     font-weight: 700;
-    border: 0.08vw solid #F3F4E3; 
+    border: 0.08vw solid #99CC31; 
+    background-color: #99CC31;
     border-radius: 1.3889vw;
     padding : 0.3vw 0.9vw;
     margin : 0.6vw;
 
     text-decoration: none;
-    color: #F3F4E3;
-    &:visited { 
-        color: #F3F4E3;
-        border: 0.08vw solid #F3F4E3; 
-    }
-    &:hover { 
-        color: #F3F4E3; 
-        border: 0.08vw solid #F3F4E3; 
-    }
+    color: #2E2923;
+    // color: white;
+   
+    &:hover ,
     &:active { 
-        color: #F3F4E3; 
-        border: 0.08vw solid #F3F4E3; 
+        color: #4A4031; 
+        border: 0.08vw solid #4A4031; 
     }
 `
 

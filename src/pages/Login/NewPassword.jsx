@@ -22,6 +22,7 @@ const Title = styled.div`
   font-size: 1.2vw;
   font-weight: 600;
   padding: 1vw 1vw 1vw 17.05vw;
+  color: #2E2923;
 `;
 
 const SubTitile = styled.div`
@@ -30,6 +31,7 @@ const SubTitile = styled.div`
   line-height: 150%; /* 0.9375vw */
   letter-spacing: -0.0187vw;
   padding: 0vw 0vw 0vw 17.05vw;
+  color: #2E2923;
 `;
 
 const JoinBoxContainer = styled.div`
@@ -43,7 +45,7 @@ const JoinBox = styled.div`
   font-size: 1vw;
   font-weight: 700;
   line-height: 1.5625vw;
-  border-top: 0.06vw solid #3D8D7A;
+  border-top: 0.06vw solid #99CC31;
   width: 62.8vw;
   padding-top: 1vw;
 
@@ -61,7 +63,7 @@ const NewPasswordP = styled.div`
         gap: 0.8333vw;  
         flex-shrink: 0;
         border-radius: 0.2604vw;
-        border: 0.0521vw solid var(--Gray-Gray-300, #D1D1D1);
+        border: 0.0521vw solid var(--Gray-Gray-300, #99CC31);
         color: var(--Gray-Gray-500, #9E9E9E);
 
         font-size: 0.8vw;
@@ -70,6 +72,7 @@ const NewPasswordP = styled.div`
 `;
 const NewPasswordP2 = styled.div`
     padding-bottom: 1.8vw;
+    color: #2E2923;
     .email{
         display: flex;
         width: 61.4583vw;
@@ -80,7 +83,7 @@ const NewPasswordP2 = styled.div`
         gap: 0.8333vw;  
         flex-shrink: 0;
         border-radius: 0.2604vw;
-        border: 0.0521vw solid var(--Gray-Gray-300, #D1D1D1);
+        border: 0.0521vw solid var(--Gray-Gray-300, #99CC31);
 
         color: var(--Gray-Gray-500, #9E9E9E);
         font-size: 0.8vw;
@@ -102,8 +105,8 @@ const NextButton = styled.div`
     text-align: center;
     padding: 0vw 0.6vw;
 
-    background-color: #3D8D7A;
-    color: #FBFFE4;
+    background-color: #99CC31;
+    color: white;
     font-size: 0.8vw;
     font-weight: 600;
     border-radius: 1vw;

@@ -34,7 +34,7 @@ const LoginBox = styled.div`
     height: 22.2917vw;
     flex-shrink: 0;
     border-radius: 0.2604vw;
-    border: 0.0521vw solid #3D8D7A;
+    border: 0.0521vw solid #9DBD5D;
 `;
 
 const InputBox = styled.div`
@@ -54,7 +54,7 @@ const InputBox = styled.div`
         font-weight: 500;
         font-size: 0.75vw;
         color: #9E9E9E;
-        border: 0.08vw solid #3D8D7A; 
+        border: 0.08vw solid #9DBD5D; 
         cursor: pointer;
         box-shadow: none;
     }
@@ -70,7 +70,7 @@ const InputBox = styled.div`
         font-weight: 500;
         font-size: 0.75vw;
         color: #9E9E9E;
-        border: 0.08vw solid #3D8D7A; 
+        border: 0.08vw solid #9DBD5D; 
         cursor: pointer;
         box-shadow: none;
     }
@@ -97,7 +97,7 @@ const LoginButton =styled.button`
     width: 16vw;
     height: 2.6042vw;
     border-radius: 1vw;
-    background-color: #3D8D7A;
+    background-color: #99CC31;;
     color: white;
     font-size: 0.9vw;
     font-style: normal;
@@ -106,10 +106,7 @@ const LoginButton =styled.button`
     border: none;
     cursor: pointer;
     box-shadow: none;
-    &:hover {
-        background-color: #347265;
-    }
-
+   
     &:disabled {
         cursor: not-allowed;
     }
@@ -128,17 +125,11 @@ const FindP= styled(NavLink)`
     line-height: 150%; 
     letter-spacing: -0.0187vw;
     text-decoration: none;
-    color: #347265;
-    &:visited { 
-        color: #347265;
-        text-decoration: none;
-    }
-    &:hover { 
-        color: #347265;
-        text-decoration: none;
-    }
+    color: #9DBD5D;
+   
+    &:hover,
     &:active { 
-        color: #347265;
+        color: #99CC31;
         text-decoration: none;
     }
 `;

@@ -5,7 +5,7 @@ import search1 from '../../../assets/images/search1.png'
 import search2 from '../../../assets/images/search2.png'
 
 const Container = styled.div`
-
+    background-color: #FFFFF0 ;
 `;
 
 const BoxContainer = styled.div`
@@ -37,7 +37,7 @@ const PhotoContainer = styled.div`
 const PhotoBox = styled.div`
     width : 6.5vw;
     height: 6.5vw;
-    background-color: #F3F4E3;
+    background-color: #F7F8F2;
     border-radius: 20px;
     display: flex;
     flex-direction: column;
@@ -74,13 +74,13 @@ const SearchContainer = styled.div`
     width: 100%;
     align-items: center;
     justify-content: center;
-    background-color: #A3D1C6;
+    background-color: #F7F8F2;
 `;
 
 const SearchBarContainer = styled.div`
     width: 60vw;
     height: 4.2vw;
-    border: 0.1vw solid #F3F4E3;
+    border: 0.1vw solid #CECAC5;
     border-radius: 1vw;
     display: flex;
     align-items: center;
@@ -88,7 +88,7 @@ const SearchBarContainer = styled.div`
     margin-top: 3vw;
     padding: 0 1vw;
     font-size: 0.9vw;
-    color: #F3F4E3;
+    color: #2E2923;
     outline: none;
     cursor: text;
     overflow: hidden;
@@ -119,7 +119,7 @@ const TagTitleP = styled.div`
     font-size: 1vw;
     font-weight: 500;
     margin: 0.3vw 0vw 1.0vw;
-    color: #F3F4E3;
+    color: #2E2923;
 `;
 
 const TagPContainer = styled.div`

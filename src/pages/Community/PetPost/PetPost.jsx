@@ -6,7 +6,6 @@ import { Card } from '../../../components/Card/Card';
 const CommunityContainer = styled.div`
   display: flex;
   width: 100%;
-  background-color: #FBFFE4;
   flex-direction: column;
 
 `;
@@ -31,14 +30,11 @@ const CategroyP = styled.div`
     padding: 0.7vw;
     font-weight: 600;
     font-size: 1vw;
-    &:visited { 
-        color: #3D8D7A;
-    }
-    &:hover { 
-        color: #3D8D7A; 
-    }
+    color : #2E2923;
+
+    &:hover ,
     &:active { 
-        color: #3D8D7A;
+        color: #9DBD5D;
     }
 `;
 
@@ -51,6 +47,7 @@ const PetPhotoTitle = styled.div`
     font-size: 1.2vw;
     font-weight: 600;
     padding: 2.19vw 1.5vw 0vw 1.5vw;
+    color: #2E2923;
 `;
 
 

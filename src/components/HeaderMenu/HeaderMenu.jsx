@@ -28,13 +28,13 @@ const Menu1 =styled(NavLink)`
     text-decoration: none;
     color: black;
     &:visited { 
-        color: #3D8D7A;
+        color: #9DBD5D;
     }
     &:hover { 
-        color: #3D8D7A; 
+        color: #9DBD5D; 
     }
     &:active { 
-        color: #3D8D7A;
+        color: #9DBD5D; 
     }
 `
 

@@ -22,6 +22,7 @@ const Title = styled.div`
   font-size: 1.2vw;
   font-weight: 600;
   padding: 1vw 1vw 1vw 17.05vw;
+  color: #2E2923;
 `;
 
 const SubTitile = styled.div`
@@ -30,6 +31,7 @@ const SubTitile = styled.div`
   line-height: 150%; /* 0.9375vw */
   letter-spacing: -0.0187vw;
   padding: 0vw 0vw 0vw 17.05vw;
+  color: #2E2923;
 `;
 
 const JoinBoxContainer = styled.div`
@@ -43,13 +45,14 @@ const JoinBox = styled.div`
   font-size: 1vw;
   font-weight: 700;
   line-height: 1.5625vw;
-  border-top: 0.06vw solid #3D8D7A;
+  border-top: 0.06vw solid #B8DD6D;
   width: 62.8vw;
   padding-top: 1vw;
 `;
 
 const Name = styled.div`
    padding-bottom: 1.8vw;
+   color: #2E2923;
   .name {
     display: flex;
     width: 25vw;
@@ -60,7 +63,7 @@ const Name = styled.div`
     gap: 0.8333vw;
     flex-shrink: 0;
     border-radius: 0.2604vw;
-    border: 0.0521vw solid var(--Gray-Gray-300, #d1d1d1);
+    border: 0.0521vw solid var(--Gray-Gray-300, #99CC31);
 
     font-size: 0.8vw;
     font-weight: 700;
@@ -68,6 +71,7 @@ const Name = styled.div`
 `
 const Email = styled.div`
     padding-bottom: 1.8vw;
+    color: #2E2923;
     .email{
         display: flex;
         width: 50vw;
@@ -78,7 +82,7 @@ const Email = styled.div`
         gap: 0.8333vw;  
         flex-shrink: 0;
         border-radius: 0.2604vw;
-        border: 0.0521vw solid var(--Gray-Gray-300, #d1d1d1);
+        border: 0.0521vw solid var(--Gray-Gray-300, #99CC31);
 
         color: var(--Gray-Gray-500, #9E9E9E);
         font-size: 0.8vw;
@@ -88,6 +92,8 @@ const Email = styled.div`
 const VerificationCode = styled.div`
     font-size: 1vw;
     font-weight: 700;
+    color: #2E2923;
+
 .register{
     display: flex;
     position: relative;
@@ -102,7 +108,7 @@ const VerificationCode = styled.div`
     gap: 0.8333vw;
     flex-shrink: 0;
     border-radius: 0.2604vw;
-    border: 0.0521vw solid var(--Gray-Gray-300, #d1d1d1);
+    border: 0.0521vw solid var(--Gray-Gray-300, #99CC31);
     color: var(--Gray-Gray-500, #9E9E9E);
     font-size: 0.8vw;
     font-weight: 700;
@@ -112,14 +118,14 @@ const VerificationCode = styled.div`
     position: absolute;
     height: 2.0833vw;
     top: 28%;
-    left: 35%;
-    padding: 0vw 0.6vw;
+    left: 34%;
+    padding: 0vw 0.8vw;
     justify-content: center;
     align-items: center;
     gap: 0.5208vw;
     border-radius: 1vw;
-    background-color: #3D8D7A;
-    color: #FBFFE4;
+    background-color: #99CC31;
+    color: white;
     border: none;
     cursor: pointer;
     box-shadow: none;
@@ -144,8 +150,8 @@ const NextButton = styled(Link)`
 
     font-size: 0.8vw;
     font-weight: 600;
-    background-color: #3D8D7A;
-    color: #FBFFE4;
+    background-color: #99CC31;
+    color: white;
     border: none;
     border-radius: 1vw;
     cursor: pointer;

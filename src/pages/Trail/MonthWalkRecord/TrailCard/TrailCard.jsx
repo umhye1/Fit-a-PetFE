@@ -13,7 +13,7 @@ const Container = styled.div`
 `;
 
 const TrailContainer = styled.div`
-    background: #A3D1C6;
+    background: #D9EDAF;
     width: 27vw;
     border-radius: 1vw;
     display: flex;
@@ -33,6 +33,7 @@ const CardTitle = styled.div`
     font-size: 1vw;
     font-weight: 500;
     margin: 1.5vw;
+    color: #2E2923
 `;
 
 const CardContainer = styled.div`
@@ -50,7 +51,7 @@ const CardBox = styled.div`
   padding: 0.5vw 1.5vw;
   width: 20vw;
   font-size: 0.9vw;
-  color: #3D8D7A;
+  color: #2E2923;
 `;
 
 function TrailCard({ selectedMonth }) {

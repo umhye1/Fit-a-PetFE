@@ -31,6 +31,7 @@ const MainTitleContainer = styled.div`
 const Title = styled.p`
     font-size: 1.2vw;
     font-weight: 600;
+    color: #2E2923;
 `;
 
 const SubTitile = styled.div`
@@ -38,6 +39,7 @@ const SubTitile = styled.div`
     font-weight: 500;
     line-height: 150%; /* 0.9375vw */
     letter-spacing: -0.0187vw;
+    color: #2E2923;
 `;
 
 const TitleContainer = styled.div`
@@ -52,7 +54,7 @@ const TitleInput = styled.input`
     height: 2.5vw;
     box-sizing: border-box;
     padding: 0 0.75vw;  
-    border: 0.08vw solid #3D8D7A;
+    border: 0.08vw solid #B8DD6D;
     font-size: 0.8vw;
     font-weight: 600;
     line-height: 2.5vw;  // 높이랑 동일하게 맞춰서 중앙정렬
@@ -74,16 +76,16 @@ const SortContainer = styled.div`
     select {
         width: 13vw;
         height: 2.5vw;
-        border: 0.08vw solid #3D8D7A;
+        border: 0.08vw solid #B8DD6D;
         border-left: none;
         padding: 0.5vw;
         font-weight: 600;
         font-size: 0.8vw;
         background-color: white;
-        color: #3D8D7A;
+        color: #2E2923;
     }
     option {
-      background-color: #3D8D7A;
+      // background-color: #D9EDAF;
     }
   }
 `;
@@ -97,7 +99,7 @@ const BoxContainer = styled.div`
 const ToolBox = styled.div`
     height: 3.65vw;
     width: 83vw;
-    background: #3D8D7A;;
+    background: #D9EDAF;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -168,7 +170,7 @@ const BlankBox = styled.div`
   fill: var(--black-white-white-1000, #fff);
   stroke-width: 0.1vw;
   stroke: var(--Gray-Gray-50, #fafafa);
-   border: 0.08vw solid #3D8D7A;
+   border: 0.08vw solid #B8DD6D;
 `;
 
 const InputContent = styled.div`
@@ -220,8 +222,8 @@ const Enroll = styled(Link)`
     width: 16vw;
     height: 2.6042vw;
     border-radius: 1vw;
-    background-color: #3D8D7A;
-    color: white;
+    background-color: #B8DD6D;
+    color: #2E2923;
     font-size: 0.9vw;
     font-weight: 600;
     border: none;

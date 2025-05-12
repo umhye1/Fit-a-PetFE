@@ -39,8 +39,9 @@ const TitleContainer = styled.div`
 
 const CardTitle = styled.div`
     font-size: 1vw;
-    font-weight: 500;
-    margin: 1.5vw;
+    font-weight: 600;
+    margin: 1.5vw 1.8vw;
+    color: #2E2923;
 `;
 
 const LikeImg = styled.img`
@@ -57,12 +58,12 @@ const TagContainer = styled.div`
 
 const TagP = styled.div`
     margin: 0vw 0.5vw 0.5vw 0vw;
-    border: 0.1vw solid #3D8D7A; 
+    border: 0.1vw solid #2E2923; 
     border-radius: 20px;
     padding : 0.3vw 0.5vw;
     font-size : 0.8vw;
-    font-weight: 700;
-    color: #3D8D7A
+    font-weight: 600;
+    color: #2E2923;
 `;
 
 export const Card = () => {

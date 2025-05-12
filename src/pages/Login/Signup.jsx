@@ -26,6 +26,7 @@ const Title = styled.div`
   font-size: 1.2vw;
   font-weight: 600;
   padding: 1vw 1vw 1vw 17.05vw;
+  color: #2E2923;
 `;
 
 const SubTitile = styled.div`
@@ -34,6 +35,7 @@ const SubTitile = styled.div`
   line-height: 150%; /* 0.9375vw */
   letter-spacing: -0.0187vw;
   padding: 0vw 0vw 0vw 17.05vw;
+  color: #2E2923;
 `;
 
 const JoinBoxContainer = styled.div`
@@ -48,7 +50,7 @@ const JoinBox = styled.div`
   font-size: 1vw;
   font-weight: 700;
   line-height: 1.5625vw;
-  border-top: 0.06vw solid #3D8D7A;
+  border-top: 0.06vw solid #99CC31;
   padding-top: 1vw;
 `;
 
@@ -60,6 +62,7 @@ const NameContainer =styled.div`
 
 const Name = styled.div`
   padding-bottom: 1.8vw;
+  color: #2E2923;
   .name {
     display: flex;
     width: 25vw;
@@ -70,7 +73,7 @@ const Name = styled.div`
     gap: 0.8333vw;
     flex-shrink: 0;
     border-radius: 0.2604vw;
-    border: 0.0521vw solid var(--Gray-Gray-300, #d1d1d1);
+    border: 0.0521vw solid var(--Gray-Gray-300, #99CC31);
 
     font-size: 0.8vw;
     font-weight: 700;
@@ -79,6 +82,7 @@ const Name = styled.div`
 
 const Nickname = styled.div`
   padding-bottom: 1.8vw;
+  color: #2E2923;
   .nickname {
     display: flex;
     width: 25vw;
@@ -89,7 +93,7 @@ const Nickname = styled.div`
     gap: 0.8333vw;
     flex-shrink: 0;
     border-radius: 0.2604vw;
-    border: 0.0521vw solid var(--Gray-Gray-300, #d1d1d1);
+    border: 0.0521vw solid var(--Gray-Gray-300, #99CC31);
 
     font-size: 0.8vw;
     font-weight: 700;
@@ -98,6 +102,7 @@ const Nickname = styled.div`
 
 const Birth = styled.div`
   padding-bottom: 1.8vw;
+  color: #2E2923;
   .birth {
     display: flex;
     width: 25vw;
@@ -108,7 +113,7 @@ const Birth = styled.div`
     gap: 0.8333vw;
     flex-shrink: 0;
     border-radius: 0.2604vw;
-    border: 0.0521vw solid var(--Gray-Gray-300, #d1d1d1);
+    border: 0.0521vw solid var(--Gray-Gray-300, #99CC31);
 
     font-size: 0.8vw;
     font-weight: 700;
@@ -117,6 +122,7 @@ const Birth = styled.div`
 
 const Password = styled.div`
   padding-bottom: 1.8vw;
+  color: #2E2923;
   .password {
     display: flex;
     width: 61.4583vw;
@@ -127,7 +133,7 @@ const Password = styled.div`
     gap: 0.8333vw;
     flex-shrink: 0;
     border-radius: 0.2604vw;
-    border: 0.0521vw solid var(--Gray-Gray-300, #d1d1d1);
+    border: 0.0521vw solid var(--Gray-Gray-300, #99CC31);
 
     font-size: 0.8vw;
     font-weight: 700;
@@ -137,16 +143,19 @@ const Password = styled.div`
 const PasswordTitle = styled.div`
   display: flex;
   align-items: center;
+  color: #2E2923;
 `;
 
 const PasswordInfo = styled.div`
   margin: 0.3vw 0.5vw;
   font-size: 0.6vw;
   font-weight: 700;
+  color: #2E2923;
 `;
 
 const PhoneNumber = styled.div`
   padding-bottom: 1.6667vw;
+  color: #2E2923;
   .phoneNumber {
     display: flex;
     width: 61.4583vw;
@@ -157,7 +166,7 @@ const PhoneNumber = styled.div`
     gap: 0.8333vw;
     flex-shrink: 0;
     border-radius: 0.2604vw;
-    border: 0.0521vw solid var(--Gray-Gray-300, #d1d1d1);
+    border: 0.0521vw solid var(--Gray-Gray-300, #99CC31);
 
     font-size: 0.8vw;
     font-weight: 700;
@@ -186,7 +195,7 @@ const Verification = styled.div`
     gap: 0.8333vw;
     flex-shrink: 0;
     border-radius: 0.2604vw;
-    border: 0.0521vw solid var(--Gray-Gray-300, #d1d1d1);
+    border: 0.0521vw solid var(--Gray-Gray-300, #99CC31);
 
     font-size: 0.8vw;
     font-weight: 700;
@@ -203,18 +212,19 @@ const Verification = styled.div`
     align-items: center;
     gap: 0.5208vw;
     border-radius: 1vw;
-    background-color: #3D8D7A;
-    color: #FBFFE4;
+    background-color: #99CC31;
+    color: white;
     border: none;
     cursor: pointer;
     box-shadow: none;
 
     font-size: 0.8vw;
-    font-weight: 500;
+    font-weight: 600;
   }
 `;
 
 const Email = styled.div`
+  color: #2E2923;
   display: flex;
   width: 28.8021vw;
   height: 2vw;
@@ -225,13 +235,14 @@ const Email = styled.div`
   gap: 0.8333vw;
   flex-shrink: 0;
   border-radius: 0.2604vw;
-  border: 0.0521vw solid var(--Gray-Gray-300, #d1d1d1);
+  border: 0.0521vw solid var(--Gray-Gray-300, #99CC31);
 `;
 
 const EmailP = styled.div`
   width: 26.0417vw;
   font-size: 0.8vw;
   font-weight: 500;
+  color: #2E2923;
 `;
 
 const EmailBox = styled.div`
@@ -274,7 +285,7 @@ const NextButton = styled.div`
     font-size: 0.8vw;
     font-weight: 600;
     border-radius: 1vw;
-    background-color: #3D8D7A;
+    background-color: #99CC31;
     color: #FBFFE4;
     border: none;
     cursor: pointer;

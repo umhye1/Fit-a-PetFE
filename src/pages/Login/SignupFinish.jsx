@@ -28,7 +28,7 @@ const JoinBox = styled.div`
     flex-direction: column;
     margin: 8vw 30vw 10vw 30vw;
     padding: 4vw;
-    border: 0.0521vw solid #3D8D7A;
+    border: 0.0521vw solid #99CC31;
     border-radius: 0.2604vw;
 `;
 
@@ -55,7 +55,7 @@ const NextButton = styled.div`
     width: 16vw;
     height: 2.6042vw;
     border-radius: 1vw;
-    background-color: #3D8D7A;
+    background-color: #99CC31;
     color: white;
     font-size: 0.9vw;
     font-style: normal;

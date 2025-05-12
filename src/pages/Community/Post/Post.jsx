@@ -7,7 +7,6 @@ import RecommendWalkMate from '../RecommendWalkMate/RecommendWalkMate';
 const CommunityContainer = styled.div`
   display: flex;
   width: 100%;
-  background-color: #FBFFE4;
   flex-direction: column;
 
 `;
@@ -32,6 +31,7 @@ const CategroyContainer = styled.div`
     width: 13.4vw;
     padding: 1.5vw 0vw 0vw 5.8vw;
     flex-shrink: 0;
+    color : #2E2923;
 `;
 
 const CategroyP = styled.div`
@@ -39,14 +39,12 @@ const CategroyP = styled.div`
     padding: 0.7vw;
     font-weight: 600;
     font-size: 1vw;
-    &:visited { 
-        color: #3D8D7A;
-    }
-    &:hover { 
-        color: #3D8D7A; 
-    }
+    color : #2E2923;
+
+
+    &:hover ,
     &:active { 
-        color: #3D8D7A;
+        color: #9DBD5D;
     }
 `;
 
@@ -70,22 +68,17 @@ const FeedWrite = styled(Link)`
     margin: 0.6vw;
     border-radius: 1.3889vw;
     text-decoration: none;
-    color: #3D8D7A;;
-    border: 0.1vw solid #3D8D7A;
+
+    // border: 0.1vw solid #99CC31; 
+    background-color: #D9EDAF;
+    color: #2E2923;
+
     font-size: 0.8vw;
     font-weight: 600;
 
-    &:visited { 
-        color: #3D8D7A;
-        border: 0.1vw solid #3D8D7A;
-    }
-    &:hover { 
-        color: #3D8D7A;
-        border: 0.1vw solid #3D8D7A;
-    }
+    &:hover,
     &:active { 
-        color: #3D8D7A;
-        border: 0.1vw solid #3D8D7A;
+        border: 0.1vw solid #99CC31; 
     }
 `;
 
@@ -93,6 +86,7 @@ const FeedBoxTitle = styled.div`
     font-size: 1.2vw;
     font-weight: 600;
     padding: 1vw 1vw 1vw 0vw;
+    color : #2E2923;
 `;
 
 const FeedBox = styled.div`
@@ -100,19 +94,21 @@ const FeedBox = styled.div`
     flex-direction: column;
     padding: 0.7vw;
     margin: 0.3vw 6.25vw 0.3vw 0vw;
-    border: 0.1vw solid #3D8D7A; 
+    border: 0.1vw solid #99CC31; 
     
 `;
 const FeedTitle = styled.div`
     font-size: 1vw;
     font-weight: 500;
     margin: 0vw 0vw 0.5vw 0vw; 
+    color : #2E2923;
 `;
 
 const FeedP = styled.div`
     font-size: 0.88vw;
     font-weight: 400;
     margin: 0.5vw 0vw 0.5vw 0vw; 
+    color : #2E2923;
 `;
 
 
