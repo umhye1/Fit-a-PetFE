@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components';
+import WeatherWidget from './Weather';
 
 
 const HomeContainer = styled.div`
@@ -29,6 +30,10 @@ export const Home = () => {
     <HomeContainer>
       <HomeTitle>Fit-a-Pet</HomeTitle>
       <HomeP>반려인을 위한 반려동물 산책 플랫폼</HomeP>
+      <div style={{ marginTop: '5vw' }}>
+        <WeatherWidget />
+      </div>
+
     </HomeContainer>
   )
 }
