@@ -12,7 +12,7 @@ import PostPage from './pages/Community/Post/PostPage';
 import PetPost from './pages/Community/PetPost/PetPost';
 import SearchMate from './pages/Community/PetPost/SearchMate';
 
-import Map from './pages/Map/Map';
+import MapPage from './pages/Map/MapPage';
 
 import Home from './pages/Home/Home';
 import ChatBox from './pages/ChatBox/ChatBox';
@@ -25,6 +25,7 @@ import SignupFinish from './pages/Login/SignupFinish';
 import NewPassword from './pages/Login/NewPassword';
 import NewPasswordSuccess from './pages/Login/NewPasswordSuccess';
 import FindPassword from './pages/Login/FindPassword';
+
 
 function App() {
 
@@ -42,6 +43,7 @@ function App() {
   }
 
   return (
+
     <>
       <Router>
         <Header onHover={handleHeaderHover} onLeave={handleHeaderLeave}/>
@@ -54,7 +56,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/chatbox" element={<ChatBox />} />
-          <Route path="/map" element={<Map />} />
+          <Route path="/map" element={<MapPage />} />
           <Route path="/trail" element={<Trail />} />
           <Route path="/profile" element={<Profile />} />
 
