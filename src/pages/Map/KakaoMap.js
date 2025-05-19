@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import search from "../../assets/images/search1.png";
+import Search from "../../assets/images/search1.png";
+import Close from "../../assets/images/close.png"
 
 const Container = styled.div`
   display: flex;
@@ -16,14 +17,14 @@ const SearchContainer = styled.div`
 `;
 
 const MapSearch = styled.div`
-  width: 35vw;
+  width: 37vw;
   height: 2.5vw;
   border: 0.1vw solid #CECAC5;
   border-radius: 1vw;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 3vw 3vw 1vw 0vw;
+  margin: 3vw 3vw 1vw 3vw;
   padding: 0 1vw;
   font-size: 0.9vw;
   color: #2E2923;
@@ -32,6 +33,7 @@ const MapSearch = styled.div`
   overflow: hidden;
   position: relative;
 `;
+
 const SearchInput = styled.input`
   width: 35vw;
   height: 2.5vw;
@@ -65,24 +67,50 @@ const KakaoMapBox = styled.div`
 
 const MapPage = () => {
   const mapRef = useRef(null);
+  const [searchInput, setSearchInput] = useState('');
   const [map, setMap] = useState(null);
   const [places, setPlaces] = useState([]);
   const [input, setInput] = useState('');
   const [markers, setMarkers] = useState([]);
   const infoWindowRef = useRef(null);
+  const [latlng, setLatlng] = useState(null);
 
   useEffect(() => {
     if (window.kakao) {
       window.kakao.maps.load(() => {
         navigator.geolocation.getCurrentPosition((pos) => {
           const center = new window.kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
-          const options = { center, level: 3 };
-          const mapInstance = new window.kakao.maps.Map(mapRef.current, options);
-          setMap(mapInstance);
+          const mapOption = { center, level: 3 };
+          const map = new window.kakao.maps.Map(mapRef.current, mapOption);
+  
+          const marker = new window.kakao.maps.Marker({
+            position: map.getCenter(),
+          });
+  
+          marker.setMap(map);
+  
+          window.kakao.maps.event.addListener(map, "click", function (mouseEvent) {
+            const latlng = mouseEvent.latLng;
+            marker.setPosition(latlng);
+            setLatlng({
+              lat: latlng.getLat(),
+              lng: latlng.getLng(),
+            });
+          });
         });
       });
     }
   }, []);
+  
+//         navigator.geolocation.getCurrentPosition((pos) => {
+//           const center = new window.kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+//           const options = { center, level: 3 };
+//           const mapInstance = new window.kakao.maps.Map(mapRef.current, options);
+//           setMap(mapInstance);
+//         });
+//       });
+//     }
+//   }, []);
 
 
   const clearMarkers = () => {
@@ -95,11 +123,14 @@ const MapPage = () => {
       <SearchContainer>
         <MapSearch>
           <SearchInput
-            placeholder="검색어를 입력하세요"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            />
-          <SearchImg src={search} alt="Search" />
+            type="text"
+            placeholder="검색어를 입력하세요."
+            value={searchInput}
+            // onChange={(e) => setSearchInput(e.target.value)}
+            // onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+           />
+
+          <SearchImg src={Search} alt="Search" />
         </MapSearch>
       </SearchContainer>
 

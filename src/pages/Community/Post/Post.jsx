@@ -34,9 +34,23 @@ const CategroyContainer = styled.div`
     color : #2E2923;
 `;
 
+const CategroyP1 = styled.div`
+    display: flex;
+    padding: 0.8vw;
+    font-weight: 600;
+    font-size: 1.2vw;
+    color : #2E2923;
+
+
+    &:hover ,
+    &:active { 
+        color: #9DBD5D;
+    }
+`;
+
 const CategroyP = styled.div`
     display: flex;
-    padding: 0.7vw;
+    padding: 0.8vw;
     font-weight: 600;
     font-size: 1vw;
     color : #2E2923;
@@ -85,7 +99,7 @@ const FeedWrite = styled(Link)`
 const FeedBoxTitle = styled.div`
     font-size: 1.2vw;
     font-weight: 600;
-    padding: 1vw 1vw 1vw 0vw;
+    padding: 0.8vw 1vw 1vw 0vw;
     color : #2E2923;
 `;
 
@@ -93,7 +107,7 @@ const FeedBox = styled.div`
     display: flex;
     flex-direction: column;
     padding: 0.7vw;
-    margin: 0.3vw 6.25vw 0.3vw 0vw;
+    margin: 1vw 6.25vw 0.3vw 0vw;
     border: 0.1vw solid #99CC31; 
     
 `;
@@ -125,9 +139,13 @@ const Feed = () => {
         {/* <LocationContainer>위치</LocationContainer> */}
         <MainContainer>
             <CategroyContainer>
+                <CategroyP1>게시글 카테고리 목록</CategroyP1>
                 <CategroyP>인기글</CategroyP>
-                <CategroyP>반려용품 추천</CategroyP>
-                <CategroyP>산책로 추천</CategroyP>
+                <CategroyP>전체 게시판</CategroyP>
+                <CategroyP>자유 게시판</CategroyP>
+                <CategroyP>반려동물 정보 게시판</CategroyP>
+                <CategroyP>맛집 게시판</CategroyP>
+                <CategroyP>산책로 추천 게시판</CategroyP>
             </CategroyContainer>
             <FeedContainer>
                 <FeedBoxContainer>

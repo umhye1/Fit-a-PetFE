@@ -130,19 +130,19 @@ const TagPContainer = styled.div`
 `;
 
 const TagP = styled.div`
-    border: 0.1vw solid #3D8D7A; 
-    background-color: #3D8D7A; 
+    border: 0.1vw solid #D9EDAF; 
+    background-color: #D9EDAF; 
     border-radius: 20px;
     padding : 0.3vw 0.5vw;
     font-size : 0.8vw;
     font-weight: 600;
-    color: white;
+    color: #2E2923;
     margin-right:0.5vw;
 `;
 
 const TagP2 = styled.div`
-    border: 0.1vw solid #fb8557;
-    background-color: #fb8557;
+    border: 0.1vw solid #4A4031;
+    background-color: #4A4031;
     border-radius: 20px;
     padding : 0.3vw 0.5vw;
     font-size : 0.8vw;
@@ -210,20 +210,21 @@ const RecommendWalkMate = () => {
 
                     <TagPContainer>
                         <TagP>내향적인</TagP>
-                        <TagP>산책좋아</TagP>
-                        <TagP>간식좋아</TagP>
-                        <TagP>내향적인</TagP>
-                        <TagP>산책좋아</TagP>
-                        <TagP>간식좋아</TagP>
+                        <TagP>외향적인</TagP>
+                        <TagP>활발한</TagP>
+                        <TagP>까칠한</TagP>
+                        <TagP>겁이 많은</TagP>
+                        <TagP>관찰 필수</TagP>
                     </TagPContainer>
 
                     <TagPContainer>
                         <TagP2>내향적인</TagP2>
+                        <TagP2>외향적인</TagP2>
                         <TagP2>내향적인</TagP2>
+                        <TagP2>외향적인</TagP2>
                         <TagP2>내향적인</TagP2>
-                        <TagP2>내향적인</TagP2>
-                        <TagP2>내향적인</TagP2>
-                        <TagP2>내향적인</TagP2>
+                        <TagP2>외향적인</TagP2>
+                    
                     </TagPContainer>
 
                 </TagBoxContainer>

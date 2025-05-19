@@ -27,7 +27,7 @@ const CategroyContainer = styled.div`
 
 const CategroyP = styled.div`
     display: flex;
-    padding: 0.7vw;
+    padding: 0.8vw;
     font-weight: 600;
     font-size: 1vw;
     color : #2E2923;
@@ -57,7 +57,7 @@ const PetPhoto = () => {
         <RecommendWalkMate/>
         <MainContainer>
             <CategroyContainer>
-                <CategroyP>인기글</CategroyP>
+                <CategroyP>내 펫 뽐내기</CategroyP>
             </CategroyContainer>
             <PetPhotoContainer>
                 <PetPhotoTitle>내 펫 뽐내기</PetPhotoTitle>
