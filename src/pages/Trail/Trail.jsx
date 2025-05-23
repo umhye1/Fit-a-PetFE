@@ -34,7 +34,7 @@ const MenuButtonP = styled.button`
   border-radius: 1.4vw;
   padding: 0.5vw 1vw;
   color: white;
-  background: ${({ active }) => (active ? '#A3D1C6' : '#3D8D7A')};
+  background: ${({ active }) => (active ? '#7B6651' : '#4A4031')};
   border: none;
 `;
 

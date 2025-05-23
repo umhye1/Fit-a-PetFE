@@ -79,7 +79,6 @@ const Menu2 = styled(NavLink)`
 
     text-decoration: none;
     color: #2E2923;
-    // color: white;
    
     &:hover ,
     &:active { 
@@ -113,6 +112,7 @@ const Header = ({onHover,closeMenu}) => {
         <LogoContainer to ="/" >fit-a-pet</LogoContainer>
 
         <MenuContainer2>
+            <Menu2 to = "myPetRoom">펫 룸</Menu2>
             <Menu2 to = "/login">로그인</Menu2>
             <Menu2 to = "/trail">산책기록함</Menu2>
         </MenuContainer2>

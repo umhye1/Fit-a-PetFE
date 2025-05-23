@@ -26,6 +26,7 @@ import NewPassword from './pages/Login/NewPassword';
 import NewPasswordSuccess from './pages/Login/NewPasswordSuccess';
 import FindPassword from './pages/Login/FindPassword';
 
+import MyPetRoom from './pages/MyPetRoom/MyPetRoom';
 
 function App() {
 
@@ -72,6 +73,7 @@ function App() {
           <Route path="/findPassword" element={<FindPassword/>} />
           <Route path="/newPassword" element={<NewPassword/>} />
           <Route path="/newPassword/success" element={<NewPasswordSuccess/>} />
+          <Route path="/myPetRoom" element={<MyPetRoom/>}/>
         </Routes>
         <Footer/>
       </Router>
