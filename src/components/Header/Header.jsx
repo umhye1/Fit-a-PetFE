@@ -2,6 +2,8 @@ import React from 'react'
 import styled from 'styled-components';
 import { Link, NavLink } from "react-router-dom";
 import { useEffect, useRef, useState } from 'react';
+import ChatRoom from '../../components/Chat/ChatRoom';
+import footPrint from '../../assets/images/footprint.png';
 
 const Container = styled.div`
   width: 100%;
@@ -86,10 +88,36 @@ const Menu2 = styled(NavLink)`
         border: 0.08vw solid #4A4031; 
     }
 `
+const ChatContainer = styled.div`
+  position: fixed;
+  right: 1vw;
+  top: 6vw;
+  overflow: hidden;
+  border-radius: 25px;
+  box-shadow: rgb(0 0 0 / 30%) 0px 12px 60px 5px;
+  
+`;
+
+const ChatIcon = styled.img`
+  width: 2vw;
+  position: absolute;
+  top: 5%;
+  right: 21%;
+  margin: 0.5vw;
+  
+`;
 
 
 const Header = ({onHover,closeMenu}) => {
-    
+
+    const[chatRoom,setChatRoom] = useState(false);
+
+    const handleChatRoom = () =>{
+        if (chatRoom) 
+            setChatRoom(false)
+        else 
+            setChatRoom(true)
+    }
   
     return (
     <Container>
@@ -112,9 +140,14 @@ const Header = ({onHover,closeMenu}) => {
         <LogoContainer to ="/" >fit-a-pet</LogoContainer>
 
         <MenuContainer2>
+            <ChatIcon src={footPrint} onClick={handleChatRoom}/>
             <Menu2 to = "myPetRoom">펫 룸</Menu2>
             <Menu2 to = "/login">로그인</Menu2>
             <Menu2 to = "/trail">산책기록함</Menu2>
+            {chatRoom&&
+                <ChatContainer>
+                    <ChatRoom/>
+                </ChatContainer>}
         </MenuContainer2>
     </HeaderContainer>
     </Container>

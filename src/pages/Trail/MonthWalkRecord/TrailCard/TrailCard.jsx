@@ -1,3 +1,6 @@
+
+
+// TrailCard.jsx
 import React from 'react';
 import styled from 'styled-components';
 
@@ -22,7 +25,6 @@ const TrailContainer = styled.div`
     padding: 1vw;
     box-sizing: border-box;
 `;
-
 
 const TitleContainer = styled.div`
     display: flex;
@@ -54,40 +56,41 @@ const CardBox = styled.div`
   color: #2E2923;
 `;
 
-function TrailCard({ selectedMonth }) {
-  // 더미 데이터 
-  const records = [
-    { date: '2025-04-01', distance: '1.2km' },
-    { date: '2025-04-12', distance: '2.0km' },
-    { date: '2025-05-03', distance: '0.8km' },
-    { date: '2025-05-04', distance: '0.8km' },
-  ];
-
-  const filtered = selectedMonth
+function TrailCard({ selectedMonth, selectedDate, records }) {
+  const monthlyRecords = selectedMonth
     ? records.filter((record) => record.date.startsWith(selectedMonth))
     : [];
 
-  return (
+  const dailyRecord = selectedDate
+    ? records.find((record) => record.date === selectedDate)
+    : null;
 
+  return (
     <TrailCardContainer>
-        <Container>
-            <TrailContainer>
-            <TitleContainer>
-                <CardTitle>월 산책 기록</CardTitle>
-            </TitleContainer>
-        <CardContainer>
-            {filtered.length > 0 ? (
-            filtered.map((r, idx) => (
-                <CardBox key={idx}>
-                <strong>{r.date}</strong> | 거리: {r.distance}
-                </CardBox>
-            ))
-            ) : (
-            <CardBox>기록이 없습니다.</CardBox>
+      <Container>
+        <TrailContainer>
+          <TitleContainer>
+            <CardTitle>월 산책 기록</CardTitle>
+          </TitleContainer>
+          <CardContainer>
+            {dailyRecord && (
+              <CardBox>
+                <strong>{dailyRecord.date}</strong> | 거리: {dailyRecord.distance}
+              </CardBox>
             )}
-        </CardContainer>
+
+            {monthlyRecords.length > 0 ? (
+              monthlyRecords.map((r, idx) => (
+                <CardBox key={idx}>
+                  <strong>{r.date}</strong> | 거리: {r.distance}
+                </CardBox>
+              ))
+            ) : (
+              <CardBox>기록이 없습니다.</CardBox>
+            )}
+          </CardContainer>
         </TrailContainer>
-        </Container>
+      </Container>
     </TrailCardContainer>
   );
 }

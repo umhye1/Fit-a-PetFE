@@ -1,8 +1,10 @@
+// MonthWalkRecord.jsx
 import React, { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import styled from 'styled-components';
 import TrailCard from './TrailCard/TrailCard';
+import footPrint from '../../../assets/images/footprint.png';
 
 const Container = styled.div`
   display: flex;
@@ -36,8 +38,8 @@ const StyledCalendar = styled(Calendar)`
   font-size: 0.9vw;
 
   .react-calendar__navigation button {
-    background-color: #3D8D7A;
-    color: white;
+    background-color: #D9EDAF;
+    color: #4A4031;
     font-weight: bold;
     border: none;
   }
@@ -46,22 +48,19 @@ const StyledCalendar = styled(Calendar)`
     height: 3.8vw;
     border: none !important;
     background: none;
+    position: relative;
   }
 
-  .react-calendar__tile--now {
-    background: #3D8D7A;
-    color: white;
-  }
-
+  .react-calendar__tile--now,
   .react-calendar__tile--active {
-    background: #A3D1C6;
+    background: #D9EDAF;
     color: white;
   }
 
   .react-calendar__navigation button:focus,
   .react-calendar__navigation button:active,
   .react-calendar__navigation button:hover {
-    background-color: #3D8D7A !important;
+    background-color: #D9EDAF !important;
     color: white !important;
     outline: none;
     box-shadow: none;
@@ -71,6 +70,14 @@ const StyledCalendar = styled(Calendar)`
 const MonthWalkRecord = () => {
   const [date, setDate] = useState(new Date());
   const [selectedMonth, setSelectedMonth] = useState('');
+  const [selectedDate, setSelectedDate] = useState(null);
+
+  const records = [
+    { date: '2025-04-01', distance: '1.2km' },
+    { date: '2025-04-12', distance: '2.0km' },
+    { date: '2025-05-03', distance: '0.8km' },
+    { date: '2025-05-04', distance: '0.8km' },
+  ];
 
   return (
     <Container>
@@ -86,10 +93,24 @@ const MonthWalkRecord = () => {
               const month = (value.getMonth() + 1).toString().padStart(2, '0');
               const formatted = `${year}-${month}`;
               setSelectedMonth(formatted);
+              setSelectedDate(null);
+            }}
+            onClickDay={(value) => {
+              const clicked = value.toISOString().split('T')[0];
+              setSelectedDate((prev) => (prev === clicked ? null : clicked));
+            }}
+            tileContent={({ date, view }) => {
+              if (view === 'month') {
+                const formatted = date.toISOString().split('T')[0];
+                if (records.some((r) => r.date === formatted)) {
+                  return <img src={footPrint} alt="paw" style={{ width: '1vw', position: 'absolute', bottom: 2, right: 2 }} />;
+                }
+              }
+              return null;
             }}
           />
         </CalendarContainer>
-        <TrailCard selectedMonth={selectedMonth} />
+        <TrailCard selectedMonth={selectedMonth} selectedDate={selectedDate} records={records} />
       </MainContainer>
     </Container>
   );

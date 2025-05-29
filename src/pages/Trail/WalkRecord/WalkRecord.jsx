@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import styled from 'styled-components';
+import WalkReplayMap from '../WalkReplayMap';
+import StopWatch from './StopWatch';
 
 const Container = styled.div`
   display: flex;
@@ -36,8 +38,8 @@ const StyledCalendar = styled(Calendar)`
   font-size: 0.9vw;
 
   .react-calendar__navigation button {
-    background-color: #3D8D7A;
-    color: white;
+    background-color: #FFEDF0;
+    color: #4A4031;
     font-weight: bold;
     border: none;
   }
@@ -49,20 +51,20 @@ const StyledCalendar = styled(Calendar)`
   }
 
   .react-calendar__tile--now {
-    background: #3D8D7A;
+    background: #FFEDF0;
     color: white;
   }
 
   .react-calendar__tile--active {
-    background: #A3D1C6;
+    background: #FFEDF0;
     color: white;
   }
 
   .react-calendar__navigation button:focus,
   .react-calendar__navigation button:active,
   .react-calendar__navigation button:hover {
-    background-color: #3D8D7A !important; /* 기본 색상 고정 */
-    color: white !important;
+    background-color: #FFEDF0  !important; /* 기본 색상 고정 */
+    // color: white !important;
     outline: none;
     box-shadow: none;
   }
@@ -85,7 +87,7 @@ const BoxContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #A3D1C6;
+  background: #D9EDAF;
   width: auto;
   height: 30vw;
   border-radius: 1vw;
@@ -93,11 +95,11 @@ const BoxContainer = styled.div`
 
 const DateP = styled.div`
   font-size: 1.2vw;
-  background: #3D8D7A;
+  background: D9EDAF;
   font-weight: 700;
   padding: 0.8vw 0vw;
   width: 100%;
-  color: white;
+  color: #4A4031;
   text-align: center;
   border-radius: 1vw 1vw 0 0;
 `;
@@ -117,7 +119,7 @@ const ClockP = styled.div`
     background: white;
     font-size: 2.7vw;
     font-weight: 800;
-    color: #3D8D7A;
+    color: #4A4031;
 `;
 
 const ClockButtonContainer = styled.div`
@@ -130,8 +132,8 @@ const ClockButtonContainer = styled.div`
 `;
 
 const ClockButton = styled.button`
-  border: 0.08vw solid #3D8D7A;
-  background-color: #3D8D7A;
+  border: 0.08vw solid #72634C ;
+  background-color: #72634C;
   border-radius: 1.3889vw;
   padding: 0.3vw 0.9vw;
   margin: 0.6vw;
@@ -155,7 +157,7 @@ const TrailRecordP = styled.div`
   font-weight: 700;
 `;
 
-const WalkRecord = () => {
+const WalkRecord = ({ path }) => {
   const [monthRecord, setMonthRecord] = useState(false);
   const [date, setDate] = useState(new Date());
   const [selectedMonth, setSelectedMonth] = useState('');
@@ -193,27 +195,14 @@ const WalkRecord = () => {
     return `${hours}:${minutes}:${seconds}`;
   };
 
+
   return (
     <Container>
 
         <MainContainer>
-        <CalendarContainer>
-          <StyledCalendar
-            onChange={setDate}
-            value={date}
-            view={monthRecord ? 'year' : 'month'}
-            maxDetail={monthRecord ? 'year' : 'month'}
-            onClickMonth={(value) => {
-              const year = value.getFullYear();
-              const month = (value.getMonth() + 1).toString().padStart(2, '0');
-              const formatted = `${year}-${month}`;
-              setSelectedMonth(formatted);
-            }}
-          />
-        </CalendarContainer>
 
-          <TrailContainer>
-            <BoxContainer>
+          {/* <TrailContainer>
+            {/* <BoxContainer>
                 <DateP>{date.toLocaleDateString()}</DateP>
 
                 <ClockContainer>
@@ -230,8 +219,10 @@ const WalkRecord = () => {
                   <TrailRecordP key={index}>산책 : {formatTime(lap)}</TrailRecordP>
                 ))}
               </TrailRecordContainer>
-            </BoxContainer>
-          </TrailContainer>
+            </BoxContainer> 
+          </TrailContainer> */}
+        <StopWatch />
+        <WalkReplayMap path={path} />
       </MainContainer>
     </Container>
   );

@@ -1,7 +1,6 @@
-import React from 'react'
+import React,{useState} from 'react'
 import styled from 'styled-components';
 import WeatherWidget from './Weather';
-
 
 const HomeContainer = styled.div`
   width: 100%;
@@ -25,7 +24,9 @@ const HomeP = styled.div`
   color: #4A4031;
 `;
 
+
 export const Home = () => {
+
   return (
     <HomeContainer>
       <HomeTitle>Fit-a-Pet</HomeTitle>
