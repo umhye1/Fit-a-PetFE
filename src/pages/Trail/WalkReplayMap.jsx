@@ -1,4 +1,3 @@
-// WalkReplayMap.jsx
 import React, { useEffect, useRef } from 'react';
 
 const WalkReplayMap = ({ path }) => {
@@ -8,39 +7,47 @@ const WalkReplayMap = ({ path }) => {
     if (!window.kakao || !path || path.length === 0) return;
 
     window.kakao.maps.load(() => {
-      const center = new window.kakao.maps.LatLng(path[0].lat, path[0].lng);
-      const mapOption = { center, level: 4 };
-      const map = new window.kakao.maps.Map(mapRef.current, mapOption);
+      const kakao = window.kakao;
+      const center = new kakao.maps.LatLng(path[0].lat, path[0].lng);
+      const map = new kakao.maps.Map(mapRef.current, {
+        center,
+        level: 4,
+      });
 
+      // 초기 마커
+      const marker = new kakao.maps.Marker({
+        map,
+        position: center,
+      });
 
-      // Polyline 경로
-      const linePath = path.map(p => new window.kakao.maps.LatLng(p.lat, p.lng));
-      const polyline = new window.kakao.maps.Polyline({
-        path: linePath,
+      // Polyline 초기화 (빈 경로)
+      const polyline = new kakao.maps.Polyline({
+        path: [center],
         strokeWeight: 5,
-        strokeColor: '#9DBD5D',
+        strokeColor: '#FF4A65',
         strokeOpacity: 0.9,
         strokeStyle: 'solid',
       });
       polyline.setMap(map);
 
-      // 마커
-      const marker = new window.kakao.maps.Marker({
-        map,
-        position: linePath[0],
-      });
-
-      // 마커 이동 애니메이션
+      // 마커 이동 및 선 경로 누적
       let i = 1;
       const moveMarker = () => {
-        if (i >= linePath.length) return;
-        marker.setPosition(linePath[i]);
-        map.panTo(linePath[i]);
+        if (i >= path.length) return;
+
+        const nextPosition = new kakao.maps.LatLng(path[i].lat, path[i].lng);
+        marker.setPosition(nextPosition);
+        map.panTo(nextPosition);
+
+        const currentPath = polyline.getPath();
+        currentPath.push(nextPosition); // 경로 추가
+        polyline.setPath(currentPath); // 경로 갱신
+
         i++;
         setTimeout(moveMarker, 800);
       };
+
       moveMarker();
-      console.log("🚩 path[0]:", path[0]);
     });
   }, [path]);
 

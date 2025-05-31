@@ -75,8 +75,9 @@ const MonthWalkRecord = () => {
   const records = [
     { date: '2025-04-01', distance: '1.2km' },
     { date: '2025-04-12', distance: '2.0km' },
-    { date: '2025-05-03', distance: '0.8km' },
+    { date: '2025-05-03', distance: '0.9km' },
     { date: '2025-05-04', distance: '0.8km' },
+    { date: '2025-05-29', distance: '0.45km' },
   ];
 
   return (

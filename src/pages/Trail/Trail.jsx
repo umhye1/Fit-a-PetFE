@@ -4,6 +4,7 @@ import WalkRecord from './WalkRecord/WalkRecord';
 import MonthWalkRecord from './MonthWalkRecord/MonthWalkRecord';
 
 const walkPath = [
+  { lat: 37.5471, lng: 126.9236 },
   { lat: 37.5472, lng: 126.9238 },
   { lat: 37.5472, lng: 126.9238 },
   { lat: 37.5472, lng: 126.9238 },
@@ -21,8 +22,10 @@ const walkPath = [
   { lat: 37.5475, lng: 126.9239 },
   { lat: 37.5475, lng: 126.9235 },
   { lat: 37.5476, lng: 126.9235 },
+  { lat: 37.5476, lng: 126.9235 },
   { lat: 37.5477, lng: 126.9235 },
   { lat: 37.5477, lng: 126.9235 },
+  { lat: 37.5478, lng: 126.9235 },
   { lat: 37.5479, lng: 126.9235 },
 ];
 

@@ -27,6 +27,8 @@ import NewPasswordSuccess from './pages/Login/NewPasswordSuccess';
 import FindPassword from './pages/Login/FindPassword';
 
 import MyPetRoom from './pages/MyPetRoom/MyPetRoom';
+import { AuthProvider } from './pages/Login/AuthContext';
+
 
 function App() {
 
@@ -44,7 +46,7 @@ function App() {
   }
 
   return (
-
+    <AuthProvider> 
     <>
       <Router>
         <Header onHover={handleHeaderHover} onLeave={handleHeaderLeave}/>
@@ -78,6 +80,7 @@ function App() {
         <Footer/>
       </Router>
     </>
+    </AuthProvider>
   );
 }
 

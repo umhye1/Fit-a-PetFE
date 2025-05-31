@@ -4,6 +4,7 @@ import { Link, NavLink } from "react-router-dom";
 import { useEffect, useRef, useState } from 'react';
 import ChatRoom from '../../components/Chat/ChatRoom';
 import footPrint from '../../assets/images/footprint.png';
+import { useAuth } from '../../pages/Login/AuthContext';
 
 const Container = styled.div`
   width: 100%;
@@ -42,16 +43,15 @@ const LogoContainer = styled(NavLink)`
 
 const MenuContainer1 = styled.div`
     display : flex;
-    width: 20vw;
     justify-content: center;
     align-items: center;
+    padding-left: 2.5vw;
 `;
 
 const MenuContainer2 = styled.div`
     display : flex;
-    width: 20vw;
-    margin-left:auto;
     align-items: center;
+    padding-right: 2.5vw;
 `;
 
 const Menu1 = styled(NavLink)`
@@ -102,7 +102,7 @@ const ChatIcon = styled.img`
   width: 2vw;
   position: absolute;
   top: 5%;
-  right: 21%;
+  right: 23%;
   margin: 0.5vw;
   
 `;
@@ -111,13 +111,11 @@ const ChatIcon = styled.img`
 const Header = ({onHover,closeMenu}) => {
 
     const[chatRoom,setChatRoom] = useState(false);
+    const { isLoggedIn } = useAuth(); 
 
-    const handleChatRoom = () =>{
-        if (chatRoom) 
-            setChatRoom(false)
-        else 
-            setChatRoom(true)
-    }
+    const handleChatRoom = () => {
+        setChatRoom(prev => !prev);
+    };
   
     return (
     <Container>
@@ -142,7 +140,7 @@ const Header = ({onHover,closeMenu}) => {
         <MenuContainer2>
             <ChatIcon src={footPrint} onClick={handleChatRoom}/>
             <Menu2 to = "myPetRoom">펫 룸</Menu2>
-            <Menu2 to = "/login">로그인</Menu2>
+            {isLoggedIn ? (<Menu2 to="/mypage">마이페이지</Menu2>) : (<Menu2 to="/login">로그인</Menu2>)}
             <Menu2 to = "/trail">산책기록함</Menu2>
             {chatRoom&&
                 <ChatContainer>

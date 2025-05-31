@@ -2,6 +2,10 @@ import React from 'react'
 import styled from 'styled-components'
 import like1 from '../../assets/images/like1.png'
 import like2 from '../../assets/images/like2.png'
+import dog1 from '../../assets/images/dog1.png'
+import dog2 from '../../assets/images/dog2.png'
+import dog3 from '../../assets/images/dog3.png'
+import cat1 from '../../assets/images/cat1.png'
 
 const Container = styled.div`
     width: 100%;
@@ -24,7 +28,7 @@ const CardBox = styled.div`
     margin: 1.5vw;
 `; 
 
-const CardImg = styled.div`
+const CardImg = styled.img`
     width: 19vw;
     height: 19vw;
     margin: 1.5vw 1.5vw 0vw 1.5vw;
@@ -72,7 +76,7 @@ export const Card = () => {
     <Container>
         <CardContainer>
             <CardBox>
-                <CardImg/>
+                <CardImg src={dog1}/>
                 <TitleContainer>
                     <CardTitle>안녕하세요</CardTitle>
                     <LikeImg src ={like1} alt = "like1"/>
@@ -84,7 +88,7 @@ export const Card = () => {
                 </TagContainer>
             </CardBox>
             <CardBox>
-                <CardImg/>
+                <CardImg src ={dog2}/>
                 <CardTitle>안녕하세요</CardTitle>
                 <TagContainer>
                     <TagP>내향적인</TagP>
@@ -93,7 +97,7 @@ export const Card = () => {
                 </TagContainer>
             </CardBox>
             <CardBox>
-                <CardImg/>
+                <CardImg src={dog3}/>
                 <CardTitle>안녕하세요</CardTitle>
                 <TagContainer>
                     <TagP>내향적인</TagP>

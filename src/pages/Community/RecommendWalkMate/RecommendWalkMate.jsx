@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom';
 import React, { useState } from 'react';
 import search1 from '../../../assets/images/search1.png'
 import search2 from '../../../assets/images/search2.png'
+import dog1 from '../../../assets/images/dog1.png'
+import dog2 from '../../../assets/images/dog2.png'
+import dog3 from '../../../assets/images/dog3.png'
+import cat1 from '../../../assets/images/cat1.png'
 
 const Container = styled.div`
     background-color: #FFFFF0 ;
@@ -34,7 +38,7 @@ const PhotoContainer = styled.div`
     justify-content: space-between;
 `;
 
-const PhotoBox = styled.div`
+const SearchBox = styled.div`
     width : 6.5vw;
     height: 6.5vw;
     background-color: #F7F8F2;
@@ -44,6 +48,18 @@ const PhotoBox = styled.div`
     justify-content: center;
     align-items: center;
 `;
+
+const PhotoBox = styled.img`
+    width : 6.5vw;
+    height: 6.5vw;
+    background-color: #F7F8F2;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+`;
+
 
 const StyledLink = styled(Link)`
     display: flex;
@@ -166,18 +182,18 @@ const RecommendWalkMate = () => {
                 <TitleBox>추천 산책 메이트</TitleBox>
 
                 <PhotoContainer>
-                    <PhotoBox  onClick={handleSearchClick}>
+                    <SearchBox  onClick={handleSearchClick}>
                         {/* <StyledLink to="/searchMate" style={{ textDecoration: 'none', color: 'inherit' }}> */}
                             <SearchImg src ={search1} alt = "SearchImg"/>
                             <SearchP>산책 메이트<br/>검색</SearchP>
                         {/* </StyledLink> */}
-                    </PhotoBox>
+                    </SearchBox>
 
-                    <PhotoBox/>
+                    <PhotoBox src ={cat1}/>
                     
-                    <PhotoBox/>
-                    <PhotoBox/>
-                    <PhotoBox/>
+                    <PhotoBox src ={dog2}/>
+                    <PhotoBox src ={dog1}/>
+                    <PhotoBox src ={dog3}/>
                     <PhotoBox/>
                     <PhotoBox/>
                     <PhotoBox/>

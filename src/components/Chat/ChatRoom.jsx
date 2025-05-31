@@ -14,7 +14,7 @@ const ChatContainer = styled.div`
 `;
 
 const ChatHeader = styled.div`
-  background-color: #9DBD5D;
+  background-color: #867358;
   padding: 1vw;
   color: white;
   font-weight: bold;
@@ -34,7 +34,7 @@ const Message = styled.div`
 
 const MessageBubble = styled.div`
   display: inline-block;
-  background-color: ${props => props.isUser ? '#9DBD5D' : '#E6E6E6'};
+  background-color: ${props => props.isUser ? '#867358' : '#E6E6E6'};
   color: ${props => props.isUser ? 'white' : 'black'};
   padding: 0.6vw 1vw;
   border-radius: 1vw;
@@ -56,7 +56,7 @@ const ChatInput = styled.input`
 
 const SendButton = styled.button`
   padding: 0 1.5vw;
-  background-color: #9DBD5D;
+  background-color: #72624B;
   color: white;
   border: none;
   cursor: pointer;

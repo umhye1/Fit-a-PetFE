@@ -1,6 +1,8 @@
 import React,{useState} from 'react'
 import {Link, NavLink} from "react-router-dom";
 import styled from 'styled-components'
+import { useAuth } from './AuthContext';
+import { useNavigate } from 'react-router-dom';
 // import axios from 'axios';
 
 
@@ -141,46 +143,20 @@ function Login() {
         userId: '',
         userPassword: '',
       });
-      const { userId, userPassword } = inputValue;
-      const [alertMessage, setAlertMessage] = useState("");
+    const { userId, userPassword } = inputValue;
+    const [alertMessage, setAlertMessage] = useState("");
+    const { login } = useAuth();
+    const navigate = useNavigate();
   
-      const handleSubmit = async () => {
-        //   console.log(userId);
-        //   console.log(userPassword);
-        //   if (!inputValue.userId || !inputValue.userPassword) {
-        //     setAlertMessage("아이디와 비밀번호를 모두 입력해주세요.");
-        //     return;
-        //   }
-  
-        //   try {
-        //       const response = await axios.post('https://bloodtrail.site/auth/login', {
-        //           email: inputValue.userId,
-        //           password: inputValue.userPassword
-        //       });
-  
-        //       const { message } = response.data;
-        //       console.log(message);
-  
-        //       if (message==="SUCCESS!"){
-        //         const {accessToken, refreshToken} = response.data.result;
-        //         localStorage.setItem('accessToken', accessToken);
-        //         localStorage.setItem('refreshToken', refreshToken);
-        //         await refreshAccessToken();
-  
-        //         console.log("Login successful");
-        //         window.location.href = "/";
-        //       }
-        //       else {
-        //         setAlertMessage(message);
-        //       }
-        
-        //       console.log(response.data);
-  
-        //   } catch (error) {
-        //       console.error('Error: ', error);
-        //       setAlertMessage("로그인 처리 중 오류가 발생했습니다.");
-        //   }
-      };
+    const handleSubmit = () => {
+        if (userId === 'admin' && userPassword === 'admin') {
+          login('dummyToken'); // 하드코딩된 임의 토큰
+          navigate('/');
+        } else {
+          setAlertMessage('아이디 또는 비밀번호가 틀렸습니다.');
+        }
+    };
+
     return (
         <Container>
             <MainConationer>
@@ -200,7 +176,9 @@ function Login() {
                                     <AlertP>{alertMessage}</AlertP>
                                 </Alert>
                              )}
-                            <LoginButton onClick={handleSubmit}>로그인</LoginButton>
+                            <Link to ="/">
+                                <LoginButton onClick={handleSubmit}>로그인</LoginButton>
+                            </Link>
                         </InputBox>
                         
                         <FindContainer>
