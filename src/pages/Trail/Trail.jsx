@@ -43,7 +43,7 @@ const MainContainer = styled.div`
   flex-direction: row;
   justify-content: center;
   align-items: stretch;
-  height: 32vw;  
+  height: 38vw;  
   gap: 2vw;
 `;
 

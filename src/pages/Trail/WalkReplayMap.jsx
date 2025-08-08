@@ -54,7 +54,7 @@ const WalkReplayMap = ({ path }) => {
   return (
     <div
       ref={mapRef}
-      style={{ width: '27vw', height: '30vw', borderRadius: '1vw', boxShadow: '0 0 0.5vw rgba(0,0,0,0.1)' }}
+      style={{ width: '28vw', height: '42vw', borderRadius: '1vw', boxShadow: '0 0 0.5vw rgba(0,0,0,0.1)' }}
     />
   );
 };
