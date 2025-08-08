@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import WalkRecord from './WalkRecord/WalkRecord';
 import MonthWalkRecord from './MonthWalkRecord/MonthWalkRecord';
 
+
 const walkPath = [
   { lat: 37.5471, lng: 126.9236 },
   { lat: 37.5472, lng: 126.9238 },
@@ -41,8 +42,8 @@ const MainContainer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: center;
-  align-items: flex-start;
-  height: 30vw;
+  align-items: stretch;
+  height: 32vw;  
   gap: 2vw;
 `;
 

@@ -3,7 +3,7 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import styled from 'styled-components';
 import WalkReplayMap from '../WalkReplayMap';
-import StopWatch from './StopWatch';
+import StopwatchBox from './StopWatchBox';
 
 const Container = styled.div`
   display: flex;
@@ -17,7 +17,7 @@ const MainContainer = styled.div`
   flex-direction: row;
   justify-content: center;
   align-items: flex-start;
-  height: 30vw;
+  height: auto;
   gap: 2vw;
 `;
 
@@ -157,6 +157,13 @@ const TrailRecordP = styled.div`
   font-weight: 700;
 `;
 
+ const Column = styled.div`
+   width: 28vw;      /* 지도 카드와 비슷한 폭 (원하는 값으로 맞추세요) */
+   height: 100%;     /* MainContainer의 32vw를 그대로 채움 */
+   display: flex;
+   align-items: stretch;
+ `;
+
 const WalkRecord = ({ path }) => {
   const [monthRecord, setMonthRecord] = useState(false);
   const [date, setDate] = useState(new Date());
@@ -200,7 +207,12 @@ const WalkRecord = ({ path }) => {
     <Container>
 
         <MainContainer>
-
+          <Column>
+            <StopwatchBox />
+          </Column>
+          <Column>
+            <WalkReplayMap path={path} />
+          </Column>
           {/* <TrailContainer>
             {/* <BoxContainer>
                 <DateP>{date.toLocaleDateString()}</DateP>
@@ -221,8 +233,7 @@ const WalkRecord = ({ path }) => {
               </TrailRecordContainer>
             </BoxContainer> 
           </TrailContainer> */}
-        <StopWatch />
-        <WalkReplayMap path={path} />
+        
       </MainContainer>
     </Container>
   );

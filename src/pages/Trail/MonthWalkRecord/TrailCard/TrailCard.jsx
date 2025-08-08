@@ -18,6 +18,7 @@ const Container = styled.div`
 const TrailContainer = styled.div`
     background: #D9EDAF;
     width: 27vw;
+    height: auto;
     border-radius: 1vw;
     display: flex;
     flex-direction: column;
