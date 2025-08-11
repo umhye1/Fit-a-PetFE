@@ -1,4 +1,3 @@
-// MonthWalkRecord.jsx
 import React, { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -9,65 +8,89 @@ import footPrint from '../../../assets/images/footprint.png';
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: center;   
   padding: 3vw;
 `;
 
+/* 두 카드 폭(28vw*2) + 간격(2vw) 만큼 고정 폭을 주고, 가운데 배치 */
 const MainContainer = styled.div`
+  width: calc(28vw * 2 + 2vw);
   display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: flex-start;
-  height: 30vw;
   gap: 2vw;
+  align-items: flex-start;
+  justify-content: center;      
 `;
 
 const CalendarContainer = styled.div`
-  display: flex;
-  justify-content: center;
+  width: 28vw;
+  height: auto;
+  background: #ffffff;
   border-radius: 1vw;
-  box-shadow: 0 0 0.5vw rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  margin-left: 2vw;
+  box-shadow: 0 0 0.5vw rgba(0,0,0,0.1);
+  overflow: hidden; /* 둥근 모서리 유지 */
+
 `;
 
+/* react-calendar 기본 CSS 특이성 이기려고 && 사용 */
 const StyledCalendar = styled(Calendar)`
+  width: 100%;
+  height: 100%;
   border: none !important;
-  width: auto;
-  height: auto;
   font-size: 0.9vw;
 
-  .react-calendar__navigation button {
-    background-color: #D9EDAF;
+  && .react-calendar__navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 3.2vw;               /* ▶ TrailCard 헤더와 동일 높이 */
+    padding: 0 0.6vw;
+    background: #D9EDAF;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    margin-bottom: 0;
+  }
+  && .react-calendar__navigation button {
+    background: transparent;
+    border: 0;
     color: #4A4031;
-    font-weight: bold;
-    border: none;
+    font-weight: 800;
+    font-size: 0.95vw;
+    padding: 0.3vw 0.6vw;
+    border-radius: 0.6vw;
   }
 
-  .react-calendar__tile {
+  && .react-calendar__viewContainer {
+    padding: 1.2vw;
+  }
+
+  && .react-calendar__tile {
     height: 3.8vw;
     border: none !important;
-    background: none;
+    outline: none !important;
+    background: #fff;
+    color: #4A4031;
+    font-weight: 600;
+    border-radius: 0.8vw;
     position: relative;
+    transition: background .15s ease, box-shadow .15s ease;
+    box-shadow: none;
+    margin: 0;
   }
-
-  .react-calendar__tile--now,
-  .react-calendar__tile--active {
+  && .react-calendar__tile:enabled:hover {
+    background: rgba(217,237,175,0.25);
+  }
+  && .react-calendar__tile--now {
+    background: rgba(217,237,175,0.35);
+    font-weight: 800;
+  }
+  && .react-calendar__tile--active {
     background: #D9EDAF;
-    color: white;
-  }
-
-  .react-calendar__navigation button:focus,
-  .react-calendar__navigation button:active,
-  .react-calendar__navigation button:hover {
-    background-color: #D9EDAF !important;
-    color: white !important;
-    outline: none;
+    color: #4A4031;
+    font-weight: 800;
     box-shadow: none;
   }
 `;
 
-const MonthWalkRecord = () => {
+export default function MonthWalkRecord() {
   const [date, setDate] = useState(new Date());
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedDate, setSelectedDate] = useState(null);
@@ -89,32 +112,41 @@ const MonthWalkRecord = () => {
             value={date}
             view="year"
             maxDetail="year"
-            onClickMonth={(value) => {
-              const year = value.getFullYear();
-              const month = (value.getMonth() + 1).toString().padStart(2, '0');
-              const formatted = `${year}-${month}`;
-              setSelectedMonth(formatted);
+            onClickMonth={(v) => {
+              const y = v.getFullYear();
+              const m = String(v.getMonth() + 1).padStart(2, '0');
+              setSelectedMonth(`${y}-${m}`);
               setSelectedDate(null);
             }}
-            onClickDay={(value) => {
-              const clicked = value.toISOString().split('T')[0];
-              setSelectedDate((prev) => (prev === clicked ? null : clicked));
+            onClickDay={(v) => {
+              const clicked = v.toISOString().split('T')[0];
+              setSelectedDate(prev => (prev === clicked ? null : clicked));
             }}
             tileContent={({ date, view }) => {
               if (view === 'month') {
-                const formatted = date.toISOString().split('T')[0];
-                if (records.some((r) => r.date === formatted)) {
-                  return <img src={footPrint} alt="paw" style={{ width: '1vw', position: 'absolute', bottom: 2, right: 2 }} />;
+                const d = date.toISOString().split('T')[0];
+                if (records.some(r => r.date === d)) {
+                  return (
+                    <img
+                      src={footPrint}
+                      alt="paw"
+                      style={{ width: '1vw', position: 'absolute', bottom: 6, right: 6 }}
+                    />
+                  );
                 }
               }
               return null;
             }}
           />
         </CalendarContainer>
-        <TrailCard selectedMonth={selectedMonth} selectedDate={selectedDate} records={records} />
+
+        {/* ▶ TrailCard도 같은 높이/헤더 포함으로 상단 정렬이 정확히 맞음 */}
+        <TrailCard
+          selectedMonth={selectedMonth}
+          selectedDate={selectedDate}
+          records={records}
+        />
       </MainContainer>
     </Container>
   );
-};
-
-export default MonthWalkRecord;
+}
