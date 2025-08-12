@@ -15,5 +15,5 @@ export const UI = {
   radiusLg: '22px',
   radiusSm: '12px',
   brownButton : '#FFEDF0',
-  lightgreenButton : 'D9EDAF'
+  lightgreenButton : '#D9EDAF',
 };
