@@ -25,18 +25,17 @@ const MainContainer = styled.div`
     background-color: white;
 
 `;
+
 const CategroyContainer = styled.div`
     display: flex;
     flex-direction: column;
-    width: 13.4vw;
-    padding: 1.5vw 0vw 0vw 5.8vw;
+    width: 20%;
     flex-shrink: 0;
-    color : #2E2923;
 `;
 
 const CategroyP1 = styled.div`
     display: flex;
-    padding: 0.8vw;
+    padding: 4vw 0vw 2vw 6vw;
     font-weight: 600;
     font-size: 1.2vw;
     color : #2E2923;
@@ -50,11 +49,10 @@ const CategroyP1 = styled.div`
 
 const CategroyP = styled.div`
     display: flex;
-    padding: 0.8vw;
+    padding: 0.8vw 0vw 0.8vw 6vw;
     font-weight: 600;
     font-size: 1vw;
     color : #2E2923;
-
 
     &:hover ,
     &:active { 
@@ -62,11 +60,12 @@ const CategroyP = styled.div`
     }
 `;
 
+
 const FeedContainer = styled.div`
     display: flex;
     flex-direction: column;
     padding: 1.5vw;
-    width: calc(100% - 19.2vw);
+    width: 100%;
 `;
 
 const FeedBoxContainer = styled.div`
@@ -99,7 +98,7 @@ const FeedWrite = styled(Link)`
 const FeedBoxTitle = styled.div`
     font-size: 1.2vw;
     font-weight: 600;
-    padding: 0.8vw 1vw 1vw 0vw;
+    margin : 2.2vw 0vw 1vw 3vw;
     color : #2E2923;
 `;
 
@@ -107,7 +106,7 @@ const FeedBox = styled.div`
     display: flex;
     flex-direction: column;
     padding: 0.7vw;
-    margin: 1vw 6.25vw 0.3vw 0vw;
+    margin: 1vw 6.25vw 0.3vw 3vw;
     border: 0.1vw solid #99CC31; 
     
 `;
@@ -130,7 +129,7 @@ const Feed = () => {
     const navigate = useNavigate();
 
     const handleClick = () => {
-        navigate('/PostPage');  
+        navigate('/postPage');  
     };
     
   return (

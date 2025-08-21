@@ -1,11 +1,12 @@
-import React from 'react'
-import styled from 'styled-components'
-import like1 from '../../assets/images/like1.png'
-import like2 from '../../assets/images/like2.png'
-import dog1 from '../../assets/images/dog1.png'
-import dog2 from '../../assets/images/dog2.png'
-import dog3 from '../../assets/images/dog3.png'
-import cat1 from '../../assets/images/cat1.png'
+import React from 'react';
+import styled from 'styled-components';
+import like1 from '../../assets/images/like1.png';
+import like2 from '../../assets/images/like2.png';
+import dog1 from '../../assets/images/dog1.png';
+import dog2 from '../../assets/images/dog2.png';
+import dog3 from '../../assets/images/dog3.png';
+import cat1 from '../../assets/images/cat1.png';
+import { useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
     width: 100%;
@@ -55,7 +56,7 @@ const LikeImg = styled.img`
 `;
 
 const TagContainer = styled.div`
-    margin: 1vw 1.5vw;
+    margin: 0.5vw 1.5vw;
     display: flex;
     flex-direction: row;
 `;
@@ -71,11 +72,16 @@ const TagP = styled.div`
 `;
 
 export const Card = () => {
+    const navigate = useNavigate();
+    
+    const handleClick = () =>{
+        navigate('/petpostPage')
+    }
     
   return (
     <Container>
         <CardContainer>
-            <CardBox>
+            <CardBox onClick={handleClick}>
                 <CardImg src={dog1}/>
                 <TitleContainer>
                     <CardTitle>안녕하세요</CardTitle>

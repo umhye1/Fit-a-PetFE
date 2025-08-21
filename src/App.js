@@ -9,8 +9,10 @@ import Post from './pages/Community/Post/Post';
 import PostWrite from './pages/Community/Post/PostWrite';
 import PostPage from './pages/Community/Post/PostPage';
 
-import PetPost from './pages/Community/PetPost/PetPost';
-import SearchMate from './pages/Community/PetPost/SearchMate';
+import Petpost from './pages/Community/Petpost/Petpost';
+import PetpostPage from './pages/Community/Petpost/PetpostPage';
+import PetpostWrite from './pages/Community/Petpost/PetpostWrite';
+import SearchMate from './pages/Community/Petpost/SearchMate';
 
 import MapPage from './pages/Map/MapPage';
 
@@ -28,6 +30,7 @@ import FindPassword from './pages/Login/FindPassword';
 
 import MyPetRoom from './pages/MyPetRoom/MyPetRoom';
 import { AuthProvider } from './pages/Login/AuthContext';
+
 
 
 function App() {
@@ -66,7 +69,10 @@ function App() {
           <Route path="/post" element={<Post />} />
           <Route path="/postPage" element={<PostPage />} />
           <Route path="/postWrite" element={<PostWrite />} />
-          <Route path="/petPost" element={<PetPost />} />
+
+          <Route path="/petpost" element={<Petpost />} />
+          <Route path="/petpostPage" element={<PetpostPage />} />
+          <Route path="/petpostWrite" element={<PetpostWrite />} />
           <Route path="/searchMate" element={<SearchMate />} />
 
           <Route path="/login" element={<Login />} />

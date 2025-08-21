@@ -12,13 +12,13 @@ const Container = styled.div`
 const CategroyContainer = styled.div`
     display: flex;
     flex-direction: column;
-    width: 13.4vw;
-    padding: 3.3vw 0vw 0vw 5.8vw;
+    width: 20%;
     flex-shrink: 0;
 `;
+
 const CategroyP1 = styled.div`
     display: flex;
-    padding: 0.8vw;
+    padding: 4vw 0vw 2vw 6vw;
     font-weight: 600;
     font-size: 1.2vw;
     color : #2E2923;
@@ -32,11 +32,10 @@ const CategroyP1 = styled.div`
 
 const CategroyP = styled.div`
     display: flex;
-    padding: 0.8vw;
+    padding: 0.8vw 0vw 0.8vw 6vw;
     font-weight: 600;
     font-size: 1vw;
     color : #2E2923;
-
 
     &:hover ,
     &:active { 
@@ -48,16 +47,18 @@ const MainContainer = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 1.5vw;
     width: 100%;
+    padding: 0vw 1.5vw 1.5vw 1.5vw;
+    margin: 0vw 5.7vw 0vw 0vw;
 `;
 
 const TitleContainer = styled.div`
     display: flex;
     flex-direction: row;
-    padding: 1vw 5.9vw 0.3vw 1vw;
+    padding: 1vw 0.3vw;
     align-items: center;
     justify-content: flex-start; 
+    margin: 1vw 1vw 0vw 1vw;
 `;
 
 const Title = styled.p`
@@ -110,7 +111,7 @@ const DateText = styled.div`
 const FeedPageContainer = styled.div`
     display: flex;
     flex-direction: column;
-    margin: 0vw 5.9vw 1vw 0vw;
+    margin: 0vw 1vw;
     border-top: 0.06vw solid #99CC31;
 `;
 
