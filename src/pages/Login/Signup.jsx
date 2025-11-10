@@ -309,22 +309,6 @@ const Signup = () => {
 
   const navigate = useNavigate(); 
 
-//   const handleEmail = (email) => {
-//     setInputValue((prevState) => ({
-//       ...prevState,
-//       userEmail: prevState.userEmail + email
-//     }));
-//     setIsVisible(false);
-//   };
-
-//   // 인풋 포커스/토글
-// const openDropdown = () => setIsVisible(true);
-// const toggleDropdown = (e) => {
-//   e.preventDefault();
-//   e.stopPropagation();
-//   setIsVisible(v => !v);
-// };
-
 // 바깥 클릭 시 닫기
 useEffect(() => {
   const onDocClick = () => setIsVisible(false);
@@ -494,7 +478,7 @@ useEffect(() => {
       resp = await signup(joinPayload, { useForm: true, url: '/join' /* 로컬이면 'http://localhost:8080/join' */ });
       if (isOk(resp)) {
         console.log('[SIGNUP OK #3]', resp);
-        navigate(`/signupFinish?name=${encodeURIComponent(inputValue.userName)}`, { replace: true });
+        navigate(`/signupFinish?name=${encodeURIComponent(inputValue.userId)}`, { replace: true });
         return;
       }
       console.warn('[SIGNUP NOT OK #3]', resp);

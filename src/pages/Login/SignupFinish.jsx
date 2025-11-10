@@ -67,14 +67,9 @@ const NextButton = styled.div`
 `;
 
 const SignupFinish = () => {
-//   const location = useLocation();
-
-//   const useQuery = () => {
-//     return new URLSearchParams(location.search);
-//   }
-
-//   const query = useQuery();
-//   const name = query.get('name'); // Retrieve the name passed in URL
+    const location = useLocation();
+    const params = new URLSearchParams(location.search);
+    const name = params.get('name') || '회원';   // ?name=... 없으면 기본값
 
     return(
         <Container>
@@ -82,8 +77,8 @@ const SignupFinish = () => {
                 <Title>회원가입</Title>
 
                 <JoinBox>
-                    <BoxP>축하합니다!{} 님의 회원가입이 완료되었습니다.</BoxP>
-                    <BoxP2>가입한 계정으로 회원가입을 진행해보세요.</BoxP2>
+                    <BoxP>축하합니다! {name} 님의 회원가입이 완료되었습니다.</BoxP>
+                    <BoxP2>가입한 계정으로 로그인해 주세요.</BoxP2>
                     <NextButton>
                     <Link to="/">
                     <input className='newPasswordSuccess' type="submit" value="홈으로 돌아가기"/>
