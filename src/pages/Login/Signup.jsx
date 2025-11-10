@@ -1,14 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-// import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import {
+  sendSignupEmail,
+  verifySignupEmail,
+  signup,
+  getErrorMessage
+} from '../../lib/api';
 
 
 
 const Container = styled.div`
   display: flex;
-  flex-direction: center;
+  flex-direction: column;
   width: 100%;
   padding-top: 2vw;
   margin-bottom: 4vw;
@@ -19,7 +23,7 @@ const MainConationer = styled.div`
   flex-direction: column;
   justify-content: center;
   padding: 1.5vw;
-  width: 100%;
+  width: 80%;
 `;
 
 const Title = styled.div`
@@ -41,16 +45,16 @@ const SubTitile = styled.div`
 const JoinBoxContainer = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin: 1.5vw 1.5vw 5vw 1.5vw;
+  align-items: flex-start; 
+  margin: 1.5vw 1.5vw 5vw 17.05vw;
+  border-top: 0.06vw solid #99CC31;
+  line-height: 1.5625vw;
 `;
 
 const JoinBox = styled.div`
   justify-content: center;
   font-size: 1vw;
   font-weight: 700;
-  line-height: 1.5625vw;
-  border-top: 0.06vw solid #99CC31;
   padding-top: 1vw;
 `;
 
@@ -100,32 +104,12 @@ const Nickname = styled.div`
   }
 `;
 
-const Birth = styled.div`
-  padding-bottom: 1.8vw;
-  color: #2E2923;
-  .birth {
-    display: flex;
-    width: 25vw;
-    height: 2vw;
-    padding: 0.5208vw 0.5208vw 0.5208vw 0.7813vw;
-    margin-top: 0.5208vw;
-    align-items: center;
-    gap: 0.8333vw;
-    flex-shrink: 0;
-    border-radius: 0.2604vw;
-    border: 0.0521vw solid var(--Gray-Gray-300, #99CC31);
-
-    font-size: 0.8vw;
-    font-weight: 700;
-  }
-`;
-
 const Password = styled.div`
   padding-bottom: 1.8vw;
   color: #2E2923;
   .password {
     display: flex;
-    width: 61.4583vw;
+    width: 25vw;
     height: 2vw;
     padding: 0.5208vw 0.5208vw 0.5208vw 0.7813vw;
     margin-top: 0.5208vw;
@@ -153,29 +137,12 @@ const PasswordInfo = styled.div`
   color: #2E2923;
 `;
 
-const PhoneNumber = styled.div`
-  padding-bottom: 1.6667vw;
-  color: #2E2923;
-  .phoneNumber {
-    display: flex;
-    width: 61.4583vw;
-    height: 2vw;
-    padding: 0.5208vw 0.5208vw 0.5208vw 0.7813vw;
-    margin-top: 0.5208vw;
-    align-items: center;
-    gap: 0.8333vw;
-    flex-shrink: 0;
-    border-radius: 0.2604vw;
-    border: 0.0521vw solid var(--Gray-Gray-300, #99CC31);
-
-    font-size: 0.8vw;
-    font-weight: 700;
-  }
-`;
-
 const VerificationBox = styled.div`
+  display: flex;
+  flex-direction: column;
   font-size: 1vw;
   font-weight: 700;
+
 `;
 
 const Verification = styled.div`
@@ -185,11 +152,11 @@ const Verification = styled.div`
     display: flex;
     position: relative;
   }
-  .verificationCode {
+  .emailInput {
     display: flex;
-    width: 28.8021vw;
+    width: 100%;
     height: 2vw;
-    padding: 0.5208vw 0.5208vw 0.5208vw 0.7813vw;
+    padding: 0.5208vw 2.0vw 0.5208vw 0.7813vw;
     margin-top: 0.5208vw;
     align-items: center;
     gap: 0.8333vw;
@@ -203,11 +170,9 @@ const Verification = styled.div`
 
   .registerButton {
     display: flex;
-    position: absolute;
     height: 2.0833vw;
-    top: 28%;
-    right: 2%;
     padding: 0vw 0.6vw;
+    margin-top: 1vw;
     justify-content: center;
     align-items: center;
     gap: 0.5208vw;
@@ -222,52 +187,64 @@ const Verification = styled.div`
     font-weight: 600;
   }
 `;
+const VerificationCodeInput = styled.input`
 
-const Email = styled.div`
-  color: #2E2923;
-  display: flex;
-  width: 28.8021vw;
-  height: 2vw;
-  padding: 0.5208vw 0.5208vw 0.5208vw 0.7813vw;
-  margin-top: 0.5208vw;
-  margin-left: 0.5208vw;
-  align-items: center;
-  gap: 0.8333vw;
-  flex-shrink: 0;
-  border-radius: 0.2604vw;
-  border: 0.0521vw solid var(--Gray-Gray-300, #99CC31);
-`;
+    display: flex;
+    width: 12.5vw;
+    height: 2vw;
+    padding: 0.5208vw 2.0vw 0.5208vw 0.7813vw;
+    margin-top: 0.5208vw;
+    align-items: center;
+    gap: 0.8333vw;
+    flex-shrink: 0;
+    border-radius: 0.2604vw;
+    border: 0.0521vw solid var(--Gray-Gray-300, #99CC31);
 
-const EmailP = styled.div`
-  width: 26.0417vw;
-  font-size: 0.8vw;
-  font-weight: 500;
-  color: #2E2923;
+    font-size: 0.8vw;
+    font-weight: 700;
 `;
 
 const EmailBox = styled.div`
-  display: ${({ show }) => (show ? 'flex' : 'none')};
+  display: ${({ $show }) => ($show ? 'flex' : 'none')};
   flex-direction: column;
   position: absolute;
-  top: 98%;
-  right: 25.3%;
-  z-index: 1;
-  width: 27.2917vw;
-  margin: 0.5208vw 0.5208vw 0.5208vw 0.7813vw;
+  top: calc(100% + 0.3vw);
+  left: 0;
+  z-index: 1000;             
+  width: 25vw;
+  background: #fff;
+  border: 0.0521vw solid #99CC31;
+  border-radius: 0.26vw;
+  box-shadow: 0 0.26vw 0.52vw rgba(0,0,0,0.08);
+  padding: 0.2vw 0;
+`;
+
+const EmailWrap = styled.div`
+  position: relative;
+  width: 25vw;
+`;
+
+// 인풋 오른쪽에 놓일 토글 버튼(▼)
+const EmailToggle = styled.button`
+  position: absolute;
+  top: 60%;
+  left: 100%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.8vw;
+  color: #2E2923;
+  line-height: 1;
 `;
 
 const HoverDiv = styled.div`
-  display: flex;
-  width: 27.2917vw;
-  height: 3.125vw;
-  padding: 0.5208vw 0.5208vw 0.5208vw 0.7813vw;
-  align-items: center;
-  gap: 0.8333vw;
+  padding: 0.52vw 0.78vw;
+  width: 25vw;
   font-size: 0.8vw;
   font-weight: 500;
-  &:hover {
-    font-weight: 600;
-  }
+  cursor: pointer;
+  &:hover { font-weight: 600; background: #f7fff0; }
 `;
 
 const NextButton = styled.div`
@@ -294,22 +271,43 @@ const NextButton = styled.div`
   }
 `;
 const ErrorMessage = styled.div`
-  height: 0.1w;
+  height: 0.1vw;
   color: #E95458;
   font-size: 0.7vw;
 `;
 
-const Signup = () => {
-//   const [selectedEmail, setSelectedEmail] = useState('email.com');
-//   const [isVisible, setIsVisible] = useState(false);
-//   const [emailMessage, setEmailMessage] = useState('');
-//   const [nameError, setNameError] = useState('');
-//   const [nicknameError, setNicknameError] = useState('');
-//   const [birthError, setBirthError] = useState('');
-//   const [passwordError, setPasswordError] = useState('');
-//   const [phoneError, setPhoneError] = useState('');
+const RegisterButton =styled.button`
+  display: flex;
+  height: 2.0833vw;
+  padding: 0vw 0.6vw;
+  margin-top: 1vw;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5208vw;
+  border-radius: 1vw;
+  background-color: #99CC31;
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: none;
 
-//   const navigate = useNavigate(); // Initialize navigate
+  font-size: 0.8vw;
+  font-weight: 600;
+`
+
+// === 컴포넌트 ===
+const Signup = () => {
+  const [isCodeSent, setIsCodeSent] = useState(false);
+  const [verifyCode, setVerifyCode] = useState('');      // 입력한 인증코드
+  const [codeMessage, setCodeMessage] = useState(''); 
+  const [isVisible, setIsVisible] = useState(false);
+  const [emailMessage, setEmailMessage] = useState('');
+  const [nameError, setNameError] = useState('');
+  const [nicknameError, setNicknameError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [isVerified, setIsVerified] = useState(false);
+
+  const navigate = useNavigate(); 
 
 //   const handleEmail = (email) => {
 //     setInputValue((prevState) => ({
@@ -319,162 +317,198 @@ const Signup = () => {
 //     setIsVisible(false);
 //   };
 
-//   const [inputValue, setInputValue] = useState({
-//     userName: '',
-//     userNickname: '',
-//     userBirth: '',
-//     userPassword: '',
-//     userPhoneNumber: '',
-//     userEmail: '',
-//   });
+//   // 인풋 포커스/토글
+// const openDropdown = () => setIsVisible(true);
+// const toggleDropdown = (e) => {
+//   e.preventDefault();
+//   e.stopPropagation();
+//   setIsVisible(v => !v);
+// };
 
-//   const handleInputChange = (e) => {
-//     setInputValue({ ...inputValue, userName: e.target.value });
-//   };
+// 바깥 클릭 시 닫기
+useEffect(() => {
+  const onDocClick = () => setIsVisible(false);
+  document.addEventListener("click", onDocClick);
+  return () => document.removeEventListener("click", onDocClick);
+}, []);
 
-//   const handleInputChange2 = (e) => {
-//     setInputValue({ ...inputValue, userNickname: e.target.value });
-//   };
+  const [inputValue, setInputValue] = useState({
+    userName: '',
+    userNickname: '',
+    userPassword: '',
+    emailLocal: '',  
+    emailDomain: '',  
+  });
 
-//   const handleInputChange3 = (e) => {
-//     setInputValue({ ...inputValue, userBirth: e.target.value });
-//   };
+  const fullEmail =
+  inputValue.emailLocal && inputValue.emailDomain
+    ? `${inputValue.emailLocal}@${inputValue.emailDomain}`
+    : '';
 
-//   const handleInputChange4 = (e) => {
-//     setInputValue({ ...inputValue, userPassword: e.target.value });
-//   };
+  // 이메일: \w+@\w+\.\w+(\.\w+)?
+  const emailOk = /^\w+@\w+\.\w+(?:\.\w+)?/.test(fullEmail);
 
-//   const handleInputChange5 = (e) => {
-//     setInputValue({ ...inputValue, userPhoneNumber: e.target.value });
-//   };
+  // 비밀번호: ^[a-zA-Z0-9~!@#$%^&*()]{8,30}$
+  const pwOk = /^[a-zA-Z0-9~!@#$%^&*()]{8,30}/.test(inputValue.userPassword);
 
-//   const handleInputChange6 = (e) => {
-//     setInputValue({ ...inputValue, userEmail: e.target.value });
-//   };
+  // 닉네임: ^[a-zA-Z0-9_]{5,15}$
+  const nickOk = /^[a-zA-Z0-9_]{5,15}/.test(inputValue.userNickname);
 
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     setNameError('');
-//     setNicknameError('');
-//     setBirthError('');
-//     setPasswordError('');
-//     setPhoneError('');
-//     setEmailMessage('');
 
-//     let isValid = true;
-//     if (!inputValue.userName.trim()) {
-//       setNameError('이름을 입력해주세요.');
-//       isValid = false;
-//     }
-//     if (!inputValue.userNickname.trim()) {
-//       setNicknameError('닉네임을 입력해주세요.');
-//       isValid = false;
-//     }
-//     if (!inputValue.userBirth.trim()) {
-//       setBirthError('생년월일을 입력해주세요.');
-//       isValid = false;
-//     }
-//     if (!inputValue.userPassword.trim()) {
-//       setPasswordError('비밀번호를 입력해주세요.');
-//       isValid = false;
-//     }
-//     if (!inputValue.userPhoneNumber.trim()) {
-//       setPhoneError('전화번호를 입력해주세요.');
-//       isValid = false;
-//     }
-//     if (!inputValue.userEmail.trim()) {
-//       setEmailMessage('이메일을 입력해주세요.');
-//       isValid = false;
-//     }
-  
-//     if (!isValid) {
-//       return; // 입력값이 유효하지 않으면 여기서 함수 종료
-//     }
-  
+  const handleInputChange = (e) =>
+    setInputValue((p) => ({ ...p, userName: e.target.value }));
+  const handleInputChange2 = (e) =>
+    setInputValue((p) => ({ ...p, userNickname: e.target.value }));
+  const handleInputChange4 = (e) =>
+    setInputValue((p) => ({ ...p, userPassword: e.target.value }));
+  const handleEmailLocalChange = (e) =>
+    setInputValue((p) => ({ ...p, emailLocal: e.target.value }));
+  const handleEmailDomainChange = (e) =>
+    setInputValue((p) => ({ ...p, emailDomain: e.target.value }));
 
-//     try {
-//       const {
-//         userName,
-//         userNickname,
-//         userBirth,
-//         userPassword,
-//         userPhoneNumber,
-//         userEmail,
-//       } = inputValue;
-//       const userData = {
-//         name: userName,
-//         nickname: userNickname,
-//         birth: userBirth,
-//         password: userPassword,
-//         phone: userPhoneNumber,
-//         email: userEmail,
-//       };
-//       const response = await axios.post(
-//         'https://bloodtrail.site/auth/register',
-//         userData
-//       );
+  const toggleDropdown = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsVisible((v) => !v);
+  };
+  const handleEmailDomainPick = (domain) => {
+    setInputValue((p) => ({ ...p, emailDomain: domain }));
+    setIsVisible(false);
+  };
 
-//       console.log(response.data);
-//       console.log(userData.name);
-//       if (response.data.isSuccess) {
-//         navigate(`/signupService/signup/finish?name=${encodeURIComponent(inputValue.userName)}`);
-//       }
-//       else {
-//         switch (response.data.message) {
-//           case "올바른 이메일 주소를 입력해주세요.":
-//             setEmailMessage("올바른 이메일 주소를 입력해주세요.");
-//             break;
-//           case "이미 존재하는 이메일입니다.":
-//             setEmailMessage("이미 존재하는 이메일입니다.");
-//             break;
-//           case "이미 존재하는 닉네임입니다.":
-//             setNicknameError("이미 존재하는 닉네임입니다.");
-//             break;
-//           case "올바른 핸드폰 번호를 입력해주세요.":
-//             setPhoneError("올바른 핸드폰 번호를 입력해주세요.");
-//             break;
-//           case "올바른 비밀번호 형식을 지켜주세요.":
-//             setPasswordError("올바른 비밀번호 형식을 지켜주세요.");
-//             break;
-//           default:
-//             setEmailMessage("서버 에러, 관리자에게 문의 바랍니다");
-//             break;
-//         }
-//       }
-//     } catch (error) {
-//       console.error('에러: ', error);
-//     }
-//   };
+  // === 인증 메일 발송 ===
+  const handleSendCode = async () => {
+    setEmailMessage('');
+    try {
+      if (!fullEmail) {
+        setEmailMessage('이메일을 입력/선택해주세요.');
+        return;
+      }
+      await sendSignupEmail({ email: fullEmail });
+      setIsCodeSent(true);
+      setEmailMessage('인증 메일을 보냈어요.');
+    } catch (e) {
+      setEmailMessage('인증 메일 발송 실패: ' + getErrorMessage(e));
+    }
+  };
 
-//   const handleSubmit2 = async (e) => {
-//     e.preventDefault();
-//     try {
-//       const response = await axios.post(
-//         'https://bloodtrail.site/auth/check-email',
-//         { email: userEmail }
-//       );
-//       if (response.data.isSuccess){
-//         setEmailMessage('이메일 인증 완료');
-//       }
-//       else {
-//         setEmailMessage('이메일 인증 실패');
-//       }
-//       console.log(inputValue);
-//       console.log(response.data);
-//     } catch (error) {
-//       console.error('에러: ', error);
-//       setEmailMessage('이메일 인증 중 오류가 발생했습니다.')
-//     }
-//   };
+  // === 인증번호 검증 ===
+ const handleVerifyCode = async () => {
+  setCodeMessage('');
+  try {
+    if (!fullEmail) return setCodeMessage('이메일을 먼저 입력/선택해주세요.');
+    if (!verifyCode) return setCodeMessage('인증코드를 입력해주세요.');
 
-//   const {
-//     userName,
-//     userNickname,
-//     userBirth,
-//     userPassword,
-//     userPhoneNumber,
-//     userEmail,
-//   } = inputValue;
+    // ★ 대문자 보장
+    const payload = { email: fullEmail, code: verifyCode.toUpperCase().trim() };
+    const resp = await verifySignupEmail(payload);
+
+    setCodeMessage(resp?.message || '인증 완료되었습니다.');
+    setIsVerified(true); 
+  } catch (e) {
+    setCodeMessage('인증 실패: ' + getErrorMessage(e));
+    setIsVerified(false); 
+  }
+};
+
+  // === 최종 회원가입 ===
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    setNameError('');
+    setNicknameError('');
+    setPasswordError('');
+    setEmailMessage('');
+
+    // --- 프론트 유효성 ---
+    let ok = true;
+    if (!inputValue.userName.trim()) {
+      setNameError('이름은 필수입니다.');
+      ok = false;
+    }
+    if (!emailOk) {
+      setEmailMessage('이메일 형식이 올바르지 않습니다. (예: abc@naver.com)');
+      ok = false;
+    }
+    if (!pwOk) {
+      setPasswordError('비밀번호는 8~30자, a-zA-Z0-9~!@#$%^&*()만 가능합니다.');
+      ok = false;
+    }
+    if (!nickOk) {
+      setNicknameError('닉네임은 5~15자, 영문/숫자/언더바만 가능합니다.');
+      ok = false;
+    }
+    if (!isVerified) {
+      setEmailMessage('이메일 인증을 완료해주세요.');
+      ok = false;
+    }
+    if (!ok) return;
+
+    // --- 공통 성공판정 ---
+    const isOk = (resp) =>
+      resp?.statusCode === 200 ||
+      resp?.statusCode === 201 ||
+      resp?.status === 'SUCCESS' ||
+      resp?.isSuccess === true ||
+      !!resp?.data; // data가 있으면 성공으로 간주(서버 공통응답 형태 대응)
+
+    // --- 가입 페이로드(인증 연계 필드 포함) ---
+    const basePayload = {
+      name: inputValue.userName,
+      email: fullEmail,
+      password: inputValue.userPassword,
+      nickname: inputValue.userNickname,
+      // 서버가 요구할 수 있는 값들(없으면 서버가 무시)
+      emailVerified: !!isVerified,
+      verificationCode: verifyCode?.trim().toUpperCase() || undefined,
+    };
+
+    try {
+      // 1) JSON + /api/users/signup
+      console.log('[SIGNUP TRY #1] JSON /api/users/signup', basePayload);
+      let resp = await signup(basePayload); // 기본(JSON)
+      if (isOk(resp)) {
+        console.log('[SIGNUP OK #1]', resp);
+        navigate(`/signupFinish?name=${encodeURIComponent(inputValue.userName)}`, { replace: true });
+        return;
+      }
+      console.warn('[SIGNUP NOT OK #1]', resp);
+
+      // 2) x-www-form-urlencoded + /api/users/signup
+      console.log('[SIGNUP TRY #2] FORM /api/users/signup', basePayload);
+      resp = await signup(basePayload, { useForm: true });
+      if (isOk(resp)) {
+        console.log('[SIGNUP OK #2]', resp);
+        navigate(`/signupFinish?name=${encodeURIComponent(inputValue.userName)}`, { replace: true });
+        return;
+      }
+      console.warn('[SIGNUP NOT OK #2]', resp);
+
+      // 3) /join + form (레거시 스펙: userId/password/email)
+      const joinPayload = {
+        userId: inputValue.userNickname,  // 서버가 userId를 기대한다고 가정(닉네임 매핑)
+        password: inputValue.userPassword,
+        email: fullEmail,
+      };
+      console.log('[SIGNUP TRY #3] FORM /join', joinPayload);
+      resp = await signup(joinPayload, { useForm: true, url: '/join' /* 로컬이면 'http://localhost:8080/join' */ });
+      if (isOk(resp)) {
+        console.log('[SIGNUP OK #3]', resp);
+        navigate(`/signupFinish?name=${encodeURIComponent(inputValue.userName)}`, { replace: true });
+        return;
+      }
+      console.warn('[SIGNUP NOT OK #3]', resp);
+
+      // 모두 실패 시 서버 메시지 출력
+      setEmailMessage(resp?.message || '회원가입 실패: 서버 응답을 확인해주세요.');
+    } catch (e) {
+      console.error('[SIGNUP FAIL]', e?.response?.status, e?.response?.data || e?.message);
+      // 개발 중 상세 메시지 확인
+      const specific = e?.response?.data?.error || e?.response?.data?.message || e?.message;
+      setEmailMessage(specific || '회원가입 중 오류가 발생했어요.');
+    }
+  };
+
 
   return (
     <Container>
@@ -493,23 +527,11 @@ const Signup = () => {
                   type="text"
                   placeholder="실명을 입력해주세요"
                   name="userName"
-                //   value={inputValue.userName}
-                //   onChange={handleInputChange}
+                  value={inputValue.userName}
+                  onChange={handleInputChange}
                 />
-              {/* <ErrorMessage>{nameError}</ErrorMessage> */}
+              <ErrorMessage>{nameError}</ErrorMessage>
               </Name>
-              <Birth>
-                생년월일
-                <input
-                  className="birth"
-                  type="text"
-                  placeholder="0000 년 00 월 00 일"
-                  birth="userBirth"
-                //   value={inputValue.userBirth}
-                //   onChange={handleInputChange3}
-                />
-                {/* <ErrorMessage>{birthError}</ErrorMessage> */}
-              </Birth>
             </NameContainer>
 
             <NameContainer>
@@ -520,24 +542,12 @@ const Signup = () => {
                   type="text"
                   placeholder="사용하실 닉네임을 입력해주세요"
                   nickname="userNickname"
-                //   value={inputValue.userNickname}
-                //   onChange={handleInputChange2}
+                  value={inputValue.userNickname}
+                  onChange={handleInputChange2}
                 />
-              {/* <ErrorMessage>{nicknameError}</ErrorMessage> */}
+              <ErrorMessage>{nicknameError}</ErrorMessage>
               </Nickname>
             
-              <Nickname>
-                반려동물 이름
-                <input
-                  className="nickname"
-                  type="text"
-                  placeholder="반려동물 이름을 입력해주세요"
-                  nickname="userNickname"
-                //   value={inputValue.userNickname}
-                //   onChange={handleInputChange2}
-                />
-              {/* <ErrorMessage>{nicknameError}</ErrorMessage> */}
-              </Nickname>
             </NameContainer>
             <Password>
               <PasswordTitle>
@@ -549,70 +559,87 @@ const Signup = () => {
                 type="password"
                 placeholder="비밀번호를 선택해주세요"
                 password="userPassword"
-              //   value={inputValue.userPassword}
-              //   onChange={handleInputChange4}
+                value={inputValue.userPassword}
+                onChange={handleInputChange4}
               />
-              {/* <ErrorMessage>{passwordError}</ErrorMessage> */}
+              <ErrorMessage>{passwordError}</ErrorMessage>
             </Password>
-            <PhoneNumber>
-              전화번호
-              <input
-                className="phoneNumber"
-                type="text"
-                placeholder="전화번호를 입력해주세요"
-                phoneNumber="userPhoneNumber"
-              //   value={inputValue.userPhoneNumber}
-              //   onChange={handleInputChange5}
-              />
-              {/* <ErrorMessage>{phoneError}</ErrorMessage> */}
-            </PhoneNumber>
+   
 
             <VerificationBox>
               이메일
               <Verification>
-                <div className="register">
-                  <input
-                    className="verificationCode"
-                    type="text"
-                    placeholder="텍스트를 입력해주세요"
-                    email="userEmail"
-                  //   value={inputValue.userEmail}
-                  //   onChange={handleInputChange6}
-                  />
-                  <button className="registerButton">
+                <div className="register" onClick={(e) => e.stopPropagation()} style={{ gap: '4vw', alignItems: 'flex-start',  }}>
+                  
+                  {/* 왼쪽: 로컬파트 */}
+                  <EmailWrap style={{ width: '12.5vw' }}>
+                    <input
+                      className="emailInput"
+                      type="text"
+                      placeholder="이메일 주소"
+                      name="emailLocal"
+                      value={inputValue.emailLocal}
+                      onChange={handleEmailLocalChange}
+                    />
+                  </EmailWrap>
+
+                  {/* 오른쪽: 도메인(드롭다운 포함) */}
+                  <EmailWrap style={{ width: '12.5vw' }}>
+                    <input
+                      className="emailInput"
+                      type="text"
+                      placeholder="(예: naver.com)"
+                      name="emailDomain"
+                      value={inputValue.emailDomain}
+                      onChange={handleEmailDomainChange}
+                      onFocus={() => setIsVisible(true)}
+                    />
+                    <EmailToggle onClick={toggleDropdown} aria-label="이메일 도메인 선택">▼</EmailToggle>
+
+                    <EmailBox $show={isVisible} style={{ width: '100%' }}>
+                      <HoverDiv onClick={() => handleEmailDomainPick('gmail.com')}>gmail.com</HoverDiv>
+                      <HoverDiv onClick={() => handleEmailDomainPick('naver.com')}>naver.com</HoverDiv>
+                      <HoverDiv onClick={() => handleEmailDomainPick('daum.net')}>daum.net</HoverDiv>
+                      <HoverDiv onClick={() => handleEmailDomainPick('kakao.com')}>kakao.com</HoverDiv>
+                    </EmailBox>
+                  </EmailWrap>
+
+                  <button className="registerButton" type="button" onClick={handleSendCode}>
                     인증하기
                   </button>
                 </div>
-                <Email>
-                  <EmailP style={{ fontSize: '0.7813vw' }}>
-                  </EmailP>
-      
-                </Email>
-                {/* {selectedEmail && ( */}
-                  <EmailBox>
-                    {/* <HoverDiv onClick={() => handleEmail('@gmail.com')}>
-                      @gmail.com
-                    </HoverDiv>
-                    <HoverDiv onClick={() => handleEmail('@naver.com')}>
-                      @naver.com
-                    </HoverDiv>
-                    <HoverDiv onClick={() => handleEmail('@email.com')}>
-                      @email.com
-                    </HoverDiv>
-                    <HoverDiv onClick={() => handleEmail('@email.com')}>
-                      @email.com
-                    </HoverDiv> */}
-                  </EmailBox>
+
               </Verification>
-              {/* <ErrorMessage>{emailMessage}</ErrorMessage> */}
+              <ErrorMessage>{emailMessage}</ErrorMessage>
+
+                <div style={{display: 'flex', flexDirection: 'row',}}>
+                  <div style={{ margin: '2vw 0vw 0vw 0vw', gap: '4vw', alignItems: 'flex-start',  }}>
+                  <VerificationCodeInput 
+                    placeholder='인증코드'
+                    value={verifyCode}
+                    onChange={(e) => setVerifyCode(e.target.value)}/>
+                  </div>
+
+                <div style={{display: 'flex', flexDirection: 'column', margin:'2vw 0vw 0vw 1vw' }}>
+                <RegisterButton onClick={handleVerifyCode}>
+                  코드 확인
+                </RegisterButton>
+                <ErrorMessage aria-live="polite">{codeMessage}</ErrorMessage>
+                </div>
+              </div>
+
             </VerificationBox>
+
+
+
           </JoinBox>
         </JoinBoxContainer>
       
-
+        <form onSubmit={handleSubmit}>
         <NextButton>
           <input className="nextButton" type="submit" value="회원가입" />
         </NextButton>
+        </form>
       </MainConationer>
     </Container>
   );

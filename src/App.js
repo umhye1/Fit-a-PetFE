@@ -32,7 +32,6 @@ import MyPetRoom from './pages/MyPetRoom/MyPetRoom';
 import { AuthProvider } from './pages/Login/AuthContext';
 
 
-
 function App() {
 
   const[hoveredComponent, setHoveredComponent] = useState(null);
@@ -82,6 +81,7 @@ function App() {
           <Route path="/newPassword" element={<NewPassword/>} />
           <Route path="/newPassword/success" element={<NewPasswordSuccess/>} />
           <Route path="/myPetRoom" element={<MyPetRoom/>}/>
+      
         </Routes>
         <Footer/>
       </Router>

@@ -108,7 +108,6 @@ export default function PetpostInfo({ petId, fetcher }) {
           <Field><Label>종</Label><Value>{pet.species ?? '-'}</Value></Field>
           <Field><Label>성별</Label><Value>{pet.gender ?? '-'}</Value></Field>
           <Field><Label>나이</Label><Value>{pet.age ? `${pet.age}살` : '-'}</Value></Field>
-          <Field><Label>무게</Label><Value>{pet.weight ? `${pet.weight} kg` : '-'}</Value></Field>
           <Field style={{ gridColumn: '1 / -1' }}>
             <Label>성향</Label>
             <ChipWrap>

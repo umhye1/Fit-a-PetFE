@@ -256,7 +256,7 @@ const PetpostPage = () => {
   const petId = 1;
   const mockPetFetcher = async (id) => ({
     id, name: '몽실이', species: 'Dog', gender: 'Female',
-    age: 4, weight: 6.3, traits: ['온순함','사람 좋아함','산책 좋아함'], bio: '공원 산책러'
+    age: 4, traits: ['온순함','사람 좋아함','산책 좋아함'], bio: '공원 산책러'
   });
 
   return (

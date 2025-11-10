@@ -97,7 +97,7 @@ const PetPhoto = () => {
             <PetPhotoContainer>
                 <FeedBoxContainer>
                     <FeedBoxTitle>동네 생활 자유 게시판</FeedBoxTitle>
-                    <FeedWrite to="/PetpostWrite">새 글쓰기</FeedWrite>
+                    <FeedWrite to="/petpostWrite">새 글쓰기</FeedWrite>
                 </FeedBoxContainer>
 
                 <Card/>
