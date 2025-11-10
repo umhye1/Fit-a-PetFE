@@ -383,7 +383,6 @@ useEffect(() => {
     if (!fullEmail) return setCodeMessage('이메일을 먼저 입력/선택해주세요.');
     if (!verifyCode) return setCodeMessage('인증코드를 입력해주세요.');
 
-    // ★ 대문자 보장
     const payload = { email: fullEmail, code: verifyCode.toUpperCase().trim() };
     const resp = await verifySignupEmail(payload);
 
@@ -406,37 +405,22 @@ useEffect(() => {
 
     // --- 프론트 유효성 ---
     let ok = true;
-    if (!inputValue.userName.trim()) {
-      setNameError('이름은 필수입니다.');
-      ok = false;
-    }
-    if (!emailOk) {
-      setEmailMessage('이메일 형식이 올바르지 않습니다. (예: abc@naver.com)');
-      ok = false;
-    }
-    if (!pwOk) {
-      setPasswordError('비밀번호는 8~30자, a-zA-Z0-9~!@#$%^&*()만 가능합니다.');
-      ok = false;
-    }
-    if (!nickOk) {
-      setNicknameError('닉네임은 5~15자, 영문/숫자/언더바만 가능합니다.');
-      ok = false;
-    }
-    if (!isVerified) {
-      setEmailMessage('이메일 인증을 완료해주세요.');
-      ok = false;
-    }
+    if (!inputValue.userName.trim()) { setNameError('이름은 필수입니다.'); ok = false; }
+    if (!emailOk) { setEmailMessage('이메일 형식이 올바르지 않습니다. (예: abc@naver.com)'); ok = false; }
+    if (!pwOk) { setPasswordError('비밀번호는 8~30자, a-zA-Z0-9~!@#$%^&*()만 가능합니다.'); ok = false; }
+    if (!nickOk) { setNicknameError('닉네임은 5~15자, 영문/숫자/언더바만 가능합니다.'); ok = false; }
+    if (!isVerified) { setEmailMessage('이메일 인증을 완료해주세요.'); ok = false; }
     if (!ok) return;
 
-    // --- 공통 성공판정 ---
+    // --- 공통 성공 판정 ---
     const isOk = (resp) =>
       resp?.statusCode === 200 ||
       resp?.statusCode === 201 ||
       resp?.status === 'SUCCESS' ||
       resp?.isSuccess === true ||
-      !!resp?.data; // data가 있으면 성공으로 간주(서버 공통응답 형태 대응)
+      !!resp?.data;
 
-    // --- 가입 페이로드(인증 연계 필드 포함) ---
+    // --- 서버로 보낼 페이로드(필요시 인증 연계 필드 포함) ---
     const basePayload = {
       name: inputValue.userName,
       email: fullEmail,
@@ -448,50 +432,29 @@ useEffect(() => {
     };
 
     try {
-      // 1) JSON + /api/users/signup
-      console.log('[SIGNUP TRY #1] JSON /api/users/signup', basePayload);
-      let resp = await signup(basePayload); // 기본(JSON)
+      console.log('[SIGNUP TRY] JSON /api/users/signup', basePayload);
+      const resp = await signup(basePayload);
+
       if (isOk(resp)) {
-        console.log('[SIGNUP OK #1]', resp);
-        navigate(`/signupFinish?name=${encodeURIComponent(inputValue.userName)}`, { replace: true });
+        console.log('[SIGNUP OK]', resp);
+        // 완료 페이지에서 보여줄 값 선택: userNickname / userName / userId 중 택1
+        navigate(`/signupFinish?name=${encodeURIComponent(inputValue.userNickname)}`, { replace: true });
         return;
       }
-      console.warn('[SIGNUP NOT OK #1]', resp);
 
-      // 2) x-www-form-urlencoded + /api/users/signup
-      console.log('[SIGNUP TRY #2] FORM /api/users/signup', basePayload);
-      resp = await signup(basePayload, { useForm: true });
-      if (isOk(resp)) {
-        console.log('[SIGNUP OK #2]', resp);
-        navigate(`/signupFinish?name=${encodeURIComponent(inputValue.userName)}`, { replace: true });
-        return;
-      }
-      console.warn('[SIGNUP NOT OK #2]', resp);
-
-      // 3) /join + form (레거시 스펙: userId/password/email)
-      const joinPayload = {
-        userId: inputValue.userNickname,  // 서버가 userId를 기대한다고 가정(닉네임 매핑)
-        password: inputValue.userPassword,
-        email: fullEmail,
-      };
-      console.log('[SIGNUP TRY #3] FORM /join', joinPayload);
-      resp = await signup(joinPayload, { useForm: true, url: '/join' /* 로컬이면 'http://localhost:8080/join' */ });
-      if (isOk(resp)) {
-        console.log('[SIGNUP OK #3]', resp);
-        navigate(`/signupFinish?name=${encodeURIComponent(inputValue.userId)}`, { replace: true });
-        return;
-      }
-      console.warn('[SIGNUP NOT OK #3]', resp);
-
-      // 모두 실패 시 서버 메시지 출력
+      console.warn('[SIGNUP NOT OK]', resp);
       setEmailMessage(resp?.message || '회원가입 실패: 서버 응답을 확인해주세요.');
-    } catch (e) {
-      console.error('[SIGNUP FAIL]', e?.response?.status, e?.response?.data || e?.message);
-      // 개발 중 상세 메시지 확인
-      const specific = e?.response?.data?.error || e?.response?.data?.message || e?.message;
-      setEmailMessage(specific || '회원가입 중 오류가 발생했어요.');
+    } catch (e1) {
+      console.error('[SIGNUP FAIL]', e1?.response?.status, e1?.response?.data || e1?.message);
+      setEmailMessage(
+        e1?.response?.data?.message ||
+        e1?.response?.data?.error ||
+        e1?.message ||
+        '회원가입 중 오류가 발생했어요.'
+      );
     }
   };
+
 
 
   return (
