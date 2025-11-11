@@ -1,8 +1,10 @@
-import React from 'react'
+import React,{useEffect, useState} from 'react'
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { Link , useNavigate } from 'react-router-dom';
 import RecommendWalkMate from '../RecommendWalkMate/RecommendWalkMate';
+import { useAuth } from '../../../pages/Login/AuthContext';
+import { listPosts } from '../../../lib/api';
+
 
 const CommunityContainer = styled.div`
   display: flex;
@@ -125,61 +127,88 @@ const FeedP = styled.div`
 `;
 
 
-const Feed = () => {
+const Post = () => {
     const navigate = useNavigate();
-
-    const handleClick = () => {
-        navigate('/postPage');  
-    };
+    const { isLoggedIn } = useAuth()
     
-  return (
+    const [category, setCategory] = useState('FREE');
+    const [rows, setRows] = useState([]); // 서버에서 받아온 목록
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        let mounted = true;
+        const fetchList = async () => {
+            setLoading(true);
+            try {
+                const data = await listPosts({ category, page: 0, size: 10 });
+                // data가 [{ post_id, title, content, created_at, ...}] 형태라고 가정
+                if (mounted) setRows(Array.isArray(data) ? data : (data?.content ?? []));
+            } catch (e) {
+                console.error('[LIST FAIL]', e);
+                if (mounted) setRows([]);
+            } finally {
+                if (mounted) setLoading(false);
+            }
+            };
+            fetchList();
+            return () => { mounted = false; };
+            const handleClick = () => {
+                navigate('/postPage');  
+            };
+        }, [category]);
+
+    const handleWriteClick = (e) => {
+        if (!isLoggedIn) {
+            e.preventDefault();
+            window.alert('로그인이 필요합니다.');
+            navigate('/login', { state: { from: '/postWrite' } });
+        }
+    };
+
+    const openDetail = (id) => navigate(`/post/${id}`);
+    const clickCategory = (cat) => setCategory(cat);
+    
+    const CATEGORY_LABEL = {
+    FREE: '자유 게시판',
+    INFO: '정보 게시판',
+    QUESTION: '질문 게시판',
+    };
+
+    return (
     <CommunityContainer>
         <RecommendWalkMate/>
         {/* <LocationContainer>위치</LocationContainer> */}
         <MainContainer>
             <CategroyContainer>
                 <CategroyP1>게시글 카테고리 목록</CategroyP1>
-                <CategroyP>인기글</CategroyP>
-                <CategroyP>전체 게시판</CategroyP>
-                <CategroyP>자유 게시판</CategroyP>
-                <CategroyP>반려동물 정보 게시판</CategroyP>
-                <CategroyP>맛집 게시판</CategroyP>
-                <CategroyP>산책로 추천 게시판</CategroyP>
+                <CategroyP onClick={() => clickCategory('FREE')}>자유 게시판</CategroyP>
+                <CategroyP onClick={() => clickCategory('INFO')}>정보 게시판</CategroyP>
+                <CategroyP onClick={() => clickCategory('QUESTION')}>질문 게시판</CategroyP>
+            
             </CategroyContainer>
             <FeedContainer>
                 <FeedBoxContainer>
-                    <FeedBoxTitle>동네 생활 자유 게시판</FeedBoxTitle>
-                    <FeedWrite to="/PostWrite">새 글쓰기</FeedWrite>
+                    <FeedBoxTitle>{CATEGORY_LABEL[category]}</FeedBoxTitle>
+                     <FeedWrite to="/postWrite" onClick={handleWriteClick}>새 글쓰기</FeedWrite>
                 </FeedBoxContainer>
-                <FeedBox onClick={handleClick}>
-                    <FeedTitle>안뇽ㅎㅎ</FeedTitle>
-                    <FeedP>처음뵙겠습니당ㅋㅋ</FeedP>
-                </FeedBox>
-                <FeedBox>
-                    <FeedTitle>안뇽ㅎㅎ</FeedTitle>
-                    <FeedP>처음뵙겠습니당ㅋㅋ</FeedP>
-                </FeedBox>
-                <FeedBox>
-                    <FeedTitle>안뇽ㅎㅎ</FeedTitle>
-                    <FeedP>처음뵙겠습니당ㅋㅋ</FeedP>
-                </FeedBox>
-                <FeedBox>
-                    <FeedTitle>안뇽ㅎㅎ</FeedTitle>
-                    <FeedP>처음뵙겠습니당ㅋㅋ</FeedP>
-                </FeedBox>
-                <FeedBox>
-                    <FeedTitle>안뇽ㅎㅎ</FeedTitle>
-                    <FeedP>처음뵙겠습니당ㅋㅋ</FeedP>
-                </FeedBox>
-                <FeedBox>
-                    <FeedTitle>안뇽ㅎㅎ</FeedTitle>
-                    <FeedP>처음뵙겠습니당ㅋㅋ</FeedP>
-                </FeedBox>
+                {loading && <div style={{ margin: '0 3vw' }}>불러오는 중…</div>}
+                {!loading && rows.length === 0 && (
+                    <div style={{ margin: '0 3vw' }}>게시글이 없습니다.</div>
+                )}
+
+                {!loading && rows.map((post) => (
+                    <FeedBox key={post.post_id} onClick={() => openDetail(post.post_id)}>
+                    <FeedTitle>{post.title}</FeedTitle>
+                    <FeedP>
+                        {post.content?.slice(0, 120) || ''} {post.content?.length > 120 ? '…' : ''}
+                    </FeedP>
+                    </FeedBox>
+                ))}
             </FeedContainer>
         </MainContainer>
     </CommunityContainer>
   )
 }
 
-export default Feed
+export default Post
 

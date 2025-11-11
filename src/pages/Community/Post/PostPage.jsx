@@ -1,10 +1,11 @@
-import React,{useState} from 'react'
+import React,{useState, useEffect} from 'react'
 import styled from "styled-components";
+import {Link, useParams, useNavigate} from "react-router-dom";
+import {getPost} from "../../../lib/api";
 
 const Container = styled.div`
   width: 100%;
   display: flex;
-  flex-direction: center;
   padding-top: 2vw;
   margin-bottom: 4vw;
 `;
@@ -69,15 +70,14 @@ const Title = styled.p`
 const UserWrapper = styled.div`
     display: flex;
     align-items: center;
-    margin-left: auto;    
-    gap: 0.5vw;      
+    margin-left: auto;   
+    gap: 1vw;      
 `;
 
 const UserWrapper2 = styled.div`
     display: flex;
     align-items: center;  
-    margin-right: auto;    
-    gap: 0.5vw;      
+    margin-right: auto;      
 `;
 
 const UserImg = styled.div`
@@ -92,8 +92,6 @@ const UserContainer = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;
-    width: 4vw;
-    height: 4vw;
     padding:0.3vw;
     gap: 0.3vw;
 `;
@@ -186,49 +184,97 @@ const CommentButton = styled.button`
     }
 `;
 
-const PostPage = () => {
 
+function fmtDate(d) {
+  if (!d) return '';
+  try {
+    // 백엔드가 LocalDateTime을 ISO로 반환하면 브라우저에서 파싱됨
+    const dt = new Date(d);
+    if (isNaN(dt.getTime())) return String(d);
+    return dt.toLocaleString();
+  } catch {
+    return String(d);
+  }
+}
+
+const PostPage = () => {
+    const {id} = useParams();
+
+    const navigate = useNavigate();
+
+    const [row, setRow] = useState(null);
+    const [loading, setLoading] = useState(false);
+
+    // 댓글 (프론트 임시 상태)
     const [commentInput, setCommentInput] = useState('');
     const [comments, setComments] = useState([
         { id: 1, user: "혜원", text: "재밌어요", time: "1시간 전" },
     ]);
 
+    useEffect(() => {
+        let mounted = true;
+        (async () => {
+            setLoading(true);
+            try {
+                const res = await getPost(id); // api.js: GET /posts/{id} → CommonResponse일 수 있음
+                // CommonResponse 처리(서버 포맷에 맞춰 안전하게 정규화)
+                const data = res?.data ?? res;
+            const normalized = {
+                post_id:   data?.post_id ?? data?.postId ?? data?.id,
+                title:     data?.title ?? data?.postTitle ?? '(제목 없음)',
+                content:   data?.content ?? data?.postContent ?? '',
+                category:  data?.postCategory ?? data?.category ?? '',
+                nickname:  data?.author?.nickname ?? data?.nickname ?? '익명',
+                created_at:data?.created_at ?? data?.postDate ?? data?.createdAt,
+            };
+
+                if (mounted) setRow(normalized);
+            } catch (e) {
+                console.error('[GET POST FAIL]', e);
+            
+                if (mounted) setRow(null);
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        })();
+        return () => { mounted = false; };
+    }, [id]);
     const handleAddComment = () => {
         if (commentInput.trim() === "") return;
         const newComment = {
-          id: Date.now(),
-          user: "익명", // 필요에 따라 사용자 정보 바꾸기
-          text: commentInput,
-          time: "방금 전"
+        id: Date.now(),
+        user: "익명",
+        text: commentInput,
+        time: "방금 전",
         };
-        setComments(prev => [...prev, newComment]);
+        setComments((prev) => [...prev, newComment]);
         setCommentInput('');
-      };
-      
+    };
+
+    if (loading) return <div style={{ padding: '2vw' }}>불러오는 중…</div>;
+    if (!row)    return <div style={{ padding: '2vw' }}>게시글을 찾을 수 없습니다.</div>;
+
 
   return (
     <Container>
 
         <CategroyContainer>
             <CategroyP1>게시글 카테고리 목록</CategroyP1>
-            <CategroyP to="/post">인기글</CategroyP>
-            <CategroyP to="/post">전체 게시판</CategroyP>
-            <CategroyP>자유 게시판</CategroyP>
-            <CategroyP>반려동물 정보 게시판</CategroyP>
-            <CategroyP>맛집 게시판</CategroyP>                
-            <CategroyP>산책로 추천 게시판</CategroyP>
+            <CategroyP to="/post?category=FREE">자유 게시판</CategroyP>
+            <CategroyP to="/post?category=INFO">정보 게시판</CategroyP>
+            <CategroyP to="/post?category=QUESTION">질문 게시판</CategroyP>
         </CategroyContainer>
 
         <MainContainer>
 
             <TitleContainer>
-                <Title>제목</Title>
+                <Title>{row.title}</Title>
 
                 <UserWrapper>
                     <UserImg/>
                     <UserContainer>
-                        <UserId>혜원</UserId>
-                        <DateText>1시간 전</DateText>
+                        <UserId>{row.nickname}</UserId>
+                        <DateText>{fmtDate(row.created_at)}</DateText>
                     </UserContainer>
                 </UserWrapper>
 
@@ -236,9 +282,7 @@ const PostPage = () => {
 
             <FeedPageContainer>
 
-                <FeedPageBox>
-                    푸하하
-                </FeedPageBox>
+                <FeedPageBox>{row.content}</FeedPageBox>
     
                 {comments.map((c) => (
                     <CommentContainer key={c.id}>
