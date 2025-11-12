@@ -219,19 +219,27 @@ const PostPage = () => {
                 const res = await getPost(id); // api.js: GET /posts/{id} → CommonResponse일 수 있음
                 // CommonResponse 처리(서버 포맷에 맞춰 안전하게 정규화)
                 const data = res?.data ?? res;
-            const normalized = {
-                post_id:   data?.post_id ?? data?.postId ?? data?.id,
-                title:     data?.title ?? data?.postTitle ?? '(제목 없음)',
-                content:   data?.content ?? data?.postContent ?? '',
-                category:  data?.postCategory ?? data?.category ?? '',
-                nickname:  data?.author?.nickname ?? data?.nickname ?? '익명',
-                created_at:data?.created_at ?? data?.postDate ?? data?.createdAt,
-            };
+                
+                const normalized = {
+                    post_id:   data?.post_id ?? data?.postId ?? data?.id,
+                    title:     data?.title ?? data?.postTitle ?? '(제목 없음)',
+                    content:   data?.content ?? data?.postContent ?? '',
+                    category:  data?.postCategory ?? data?.category ?? '',
+                    nickname:  data?.author?.nickname ?? data?.nickname ?? '익명',
+                    created_at:data?.created_at ?? data?.postDate ?? data?.createdAt,
+                };
 
                 if (mounted) setRow(normalized);
             } catch (e) {
+                const status = e?.response?.status;
+
+                if (status === 401) {
+                    window.alert('로그인이 필요합니다.');
+                    navigate('/login', { state: { from: `/post/${id}` }, replace: false });
+                    return;
+                }
+
                 console.error('[GET POST FAIL]', e);
-            
                 if (mounted) setRow(null);
             } finally {
                 if (mounted) setLoading(false);
@@ -251,8 +259,8 @@ const PostPage = () => {
         setCommentInput('');
     };
 
-    if (loading) return <div style={{ padding: '2vw' }}>불러오는 중…</div>;
-    if (!row)    return <div style={{ padding: '2vw' }}>게시글을 찾을 수 없습니다.</div>;
+    if (loading) return <div style={{ padding: '2vw',  fontSize: '0.8vw' }}>불러오는 중…</div>;
+    if (!row)    return <div style={{ padding: '2vw', fontSize: '0.8vw' }}>게시글을 찾을 수 없습니다.</div>;
 
 
   return (

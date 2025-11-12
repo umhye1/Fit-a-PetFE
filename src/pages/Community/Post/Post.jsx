@@ -1,6 +1,6 @@
-import React,{useEffect, useState} from 'react'
+import React,{useEffect, useState, useRef} from 'react'
 import styled from 'styled-components';
-import { Link , useNavigate } from 'react-router-dom';
+import { Link , useNavigate , useLocation} from 'react-router-dom';
 import RecommendWalkMate from '../RecommendWalkMate/RecommendWalkMate';
 import { useAuth } from '../../../pages/Login/AuthContext';
 import { listPosts } from '../../../lib/api';
@@ -129,8 +129,10 @@ const FeedP = styled.div`
 
 const Post = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const alertedRef = useRef(false);
+
     const { isLoggedIn } = useAuth()
-    
     const [category, setCategory] = useState('FREE');
     const [rows, setRows] = useState([]); // 서버에서 받아온 목록
     const [loading, setLoading] = useState(false);
@@ -141,9 +143,18 @@ const Post = () => {
             setLoading(true);
             try {
                 const data = await listPosts({ category, page: 0, size: 10 });
-                // data가 [{ post_id, title, content, created_at, ...}] 형태라고 가정
                 if (mounted) setRows(Array.isArray(data) ? data : (data?.content ?? []));
             } catch (e) {
+                const status = e?.response?.status;
+                if (status === 401) {
+                    if (!alertedRef.current) {
+                        alertedRef.current = true;
+                        window.alert('로그인이 필요합니다.');
+                        navigate('/login', { state: { from: location.pathname + location.search }, replace: false });
+                    }
+                    return;
+                }
+
                 console.error('[LIST FAIL]', e);
                 if (mounted) setRows([]);
             } finally {
@@ -155,7 +166,7 @@ const Post = () => {
             const handleClick = () => {
                 navigate('/postPage');  
             };
-        }, [category]);
+        }, [category, navigate, location]);
 
     const handleWriteClick = (e) => {
         if (!isLoggedIn) {
@@ -191,10 +202,7 @@ const Post = () => {
                     <FeedBoxTitle>{CATEGORY_LABEL[category]}</FeedBoxTitle>
                      <FeedWrite to="/postWrite" onClick={handleWriteClick}>새 글쓰기</FeedWrite>
                 </FeedBoxContainer>
-                {loading && <div style={{ margin: '0 3vw' }}>불러오는 중…</div>}
-                {!loading && rows.length === 0 && (
-                    <div style={{ margin: '0 3vw' }}>게시글이 없습니다.</div>
-                )}
+                {loading && <div style={{ margin: '0 3vw', padding: '1vw 0vw 0vw 0vw',fontSize: '0.8vw' }}>불러오는 중…</div>}
 
                 {!loading && rows.map((post) => (
                     <FeedBox key={post.post_id} onClick={() => openDetail(post.post_id)}>
