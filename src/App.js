@@ -30,6 +30,7 @@ import FindPassword from './pages/Login/FindPassword';
 
 import MyPetRoom from './pages/MyPetRoom/MyPetRoom';
 import { AuthProvider } from './pages/Login/AuthContext';
+import MyPage from './pages/MyPage/MyPage';
 
 
 function App() {
@@ -81,6 +82,8 @@ function App() {
           <Route path="/newPassword" element={<NewPassword/>} />
           <Route path="/newPassword/success" element={<NewPasswordSuccess/>} />
           <Route path="/myPetRoom" element={<MyPetRoom/>}/>
+
+          <Route path="/mypage" element ={<MyPage/>}/>
       
         </Routes>
         <Footer/>

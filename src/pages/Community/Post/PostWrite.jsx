@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 import { css } from 'styled-components';
 import { useAuth } from '../../Login/AuthContext';
-import { createPostWrite } from '../../../lib/api';
+import { createPostWrite, getPost, updatePost } from '../../../lib/api';
 import React, { useState, useRef, useEffect} from 'react';
-import { useNavigate } from 'react-router-dom';  
+import { useNavigate, useLocation } from 'react-router-dom';  
 
 const Container = styled.div`
   width: 100%;
@@ -303,7 +303,7 @@ const PostWrite = () => {
     };
   };
 
-  // === [NEW] 유효성 ===
+  // === 유효성 ===
   const validate = () => {
     if (!postTitle.trim()) return '제목을 입력하세요.';
     if (!getContentText()) return '내용을 입력하세요.';
@@ -332,13 +332,21 @@ const PostWrite = () => {
 
     setLoading(true);
     try {
-      const payload = buildPayload();
-      console.log('[POST payload]', payload );
-      
-      const resp = await createPostWrite(payload);
-      console.log('[POST resp]',resp);
+      if (isEdit) {
+        const editPayload = {
+          postTitle,
+          postContent: getContentText(),
+        };
 
-      navigate('/post', { replace: true }); // 작성 후 이동
+        console.log('[PUT payload]', editPayload);
+        await updatePost(editId, editPayload);
+        navigate(`/post/${editId}`, { replace: true }); // 수정 후 상세로
+      } else {
+        const createPayload = buildPayload();           // 새 글 작성용
+        console.log('[POST payload]', createPayload);
+        await createPostWrite(createPayload);
+        navigate('/post', { replace: true });           // 등록 후 목록으로
+      }
     } catch (err) {
       console.error('[POST CREATE FAIL]', err?.response?.status, err?.response?.data || err?.message);
       setMsg(err?.response?.data?.message || err?.message || '등록 중 오류가 발생했어요.');
@@ -347,14 +355,39 @@ const PostWrite = () => {
     }
   };
 
+  // === post 수정 ===
+  const { search } = useLocation();
+  const editId = new URLSearchParams(search).get('edit');
+  const isEdit = !!editId;
+
+  useEffect(() => {
+    if (!isEdit) return;
+    (async () => {
+      setLoading(true);
+      try {
+        const raw = await getPost(editId);          // GET /posts/{id}
+        const d = raw?.data ?? raw;                 // CommonResponse 호환
+        setPostTitle(d.postTitle ?? '');
+        setPostCategory(d.postCategory ?? 'FREE');  // 셀렉트 프리필
+        if (contentRef.current) {
+          contentRef.current.innerText = d.postContent ?? ''; // contentEditable 프리필
+        }
+      } catch (e) {
+        console.error('[EDIT PREFILL FAIL]', e);
+        alert('글 정보를 불러오지 못했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [isEdit, editId]);
+
+
   return (
-  
-      
       
     <Container>
         <MainContainer>
             <MainTitleContainer>
-                <Title>글 작성하기</Title>
+                <Title>{isEdit ? '글 수정하기' : '글 작성하기'}</Title>
                 <SubTitile>
                     타인을 비방하거나 비난하는 행위 등 이용약관에 어긋나는 글을 작성할
                     경우 삭제될 수 있습니다. 자세한 내용은 이용약관을 참고해주세요
@@ -460,7 +493,7 @@ const PostWrite = () => {
 
         <EnrollContainer>
           <EnrollButton type="submit" disabled={loading}>
-            {loading ? '등록 중…' : '글 등록하기'}
+            {loading ? (isEdit ? '수정 중…' : '등록 중…') : (isEdit ? '수정하기' : '글 등록하기')}
           </EnrollButton>
         </EnrollContainer>
       </form>

@@ -1,81 +1,112 @@
-// import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-// import { tokenStorage } from '../../lib/api';
-
-// const AuthContext = createContext(null);
-
-// export function AuthProvider({ children }) {
-//   // 토큰만 상태로 관리
-//   const [token, setToken] = useState(() => tokenStorage.get());
-
-//   // 파생 값
-//   const isLoggedIn = !!token;
-
-//   // 로그인/로그아웃
-//   const login = (tk) => {
-//     tokenStorage.set(tk);
-//     setToken(tk);
-//   };
-
-//   const logout = () => {
-//     tokenStorage.clear();
-//     setToken(null);
-//   };
-
-//   // 다탭 동기화 (다른 탭에서 토큰 변경 시 반영)
-//   useEffect(() => {
-//     const onStorage = (e) => {
-//       if (e.key === 'accessToken') {
-//         setToken(tokenStorage.get());
-//       }
-//     };
-//     window.addEventListener('storage', onStorage);
-//     return () => window.removeEventListener('storage', onStorage);
-//   }, []);
-
-//   // 초기 동기화(혹시 외부에서 바뀌었을 수 있으니 한번 더 보정)
-//   useEffect(() => {
-//     setToken(tokenStorage.get());
-//   }, []);
-
-//   // 불필요 렌더링 방지
-//   const value = useMemo(() => ({ isLoggedIn, token, login, logout }), [isLoggedIn, token]);
-
-//   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-// }
-
-// export const useAuth = () => useContext(AuthContext);
-
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { tokenStorage, refreshTokenStorage } from '../../lib/api';
 
 const AuthContext = createContext();
 
+// --- JWT 디코더(프로필 없는 로그인 응답 대비) ---
+function decodeEmailFromJWT(token) {
+  if (!token) return null;
+  try {
+    const [, payload] = token.split('.');
+    const json = JSON.parse(
+      atob(payload.replace(/-/g, '+').replace(/_/g, '/'))
+    );
+    // 서버 구현에 따라 email 또는 sub 중 하나를 사용
+    return json.email || json.sub || null;
+  } catch {
+    return null;
+  }
+}
+
+const ME_KEY = 'me';
+
 export const AuthProvider = ({ children }) => {
+  // 로그인 여부 + 내 프로필
   const [isLoggedIn, setIsLoggedIn] = useState(!!tokenStorage.get());
+  const [me, setMe] = useState(() => {
+    try {
+      const raw = localStorage.getItem(ME_KEY);
+      return raw ? JSON.parse(raw) : null; // { nickname, email } 구조 권장
+    } catch {
+      return null;
+    }
+  });
 
+  // 마운트 시 토큰이 있는데 me가 없으면 JWT에서 email 복원
   useEffect(() => {
-    setIsLoggedIn(!!tokenStorage.get());
-  }, []);
+    const hasToken = !!tokenStorage.get();
+    setIsLoggedIn(hasToken);
+    if (hasToken && !me) {
+      const email = decodeEmailFromJWT(tokenStorage.get());
+      if (email) {
+        const restored = { nickname: null, email };
+        setMe(restored);
+        localStorage.setItem(ME_KEY, JSON.stringify(restored));
+      }
+    }
+  }, []); // 최초 1회
 
-  /** 서버 로그인 성공 시 access/refresh 저장 */
-  const login = ({ accessToken, refreshToken }) => {
+  // 공통 저장 유틸
+  const persistMe = (profile) => {
+    if (!profile) return;
+    setMe(profile);
+    localStorage.setItem(ME_KEY, JSON.stringify(profile));
+  };
+
+  // ------- login: 다양한 응답/형태를 모두 수용 -------
+  /**
+   * login(arg)
+   * 허용 형태 예:
+   * 1) { accessToken, refreshToken, profile:{ nickname, email } }
+   * 2) resp 형태: { data:{ accessToken, refreshToken, nickname, email, profile:{...} } }
+   * 3) 토큰만 있는 경우: { accessToken, refreshToken } → JWT에서 email 복원
+   */
+  const login = (arg = {}) => {
+    // 최상위/resp.data 양쪽에서 토큰/프로필 추출
+    const root = arg?.data ? arg.data : arg;
+
+    const accessToken =
+      root?.accessToken || root?.token || null;
+    const refreshToken = root?.refreshToken || null;
+
+    // profile 우선, 없으면 nickname/email 평문, 그것도 없으면 JWT에서 email 추출
+    let profile =
+      root?.profile ||
+      (root?.nickname || root?.email
+        ? { nickname: root?.nickname ?? null, email: root?.email ?? null }
+        : null);
+
+    // 저장: 토큰
     if (accessToken) tokenStorage.set(accessToken);
     if (refreshToken) refreshTokenStorage.set(refreshToken);
+
+    // me 복원 로직
+    if (!profile) {
+      const emailFromJWT = decodeEmailFromJWT(accessToken || tokenStorage.get());
+      profile = emailFromJWT ? { nickname: null, email: emailFromJWT } : null;
+    }
+
+    if (profile) persistMe(profile);
+
     setIsLoggedIn(true);
   };
 
-  /** 클라이언트 로그아웃(필요 시 서버 로그아웃 호출 후) */
+  // ------- 로그아웃 -------
   const logout = () => {
     tokenStorage.clear();
     refreshTokenStorage.clear();
     setIsLoggedIn(false);
+    setMe(null);
+    localStorage.removeItem(ME_KEY);
   };
 
-  return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
-      {children}
-    </AuthContext.Provider>
+  // 값 메모이즈
+  const value = useMemo(
+    () => ({ isLoggedIn, me, login, logout, setMe: persistMe }),
+    [isLoggedIn, me]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => useContext(AuthContext);

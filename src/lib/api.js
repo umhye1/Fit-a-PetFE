@@ -272,9 +272,8 @@ export const createPostWrite = async (payload, images = []) => {
 // === 게시글 목록 조회 Post ===
 export const listPosts = async({category, page = 0, size =8} = {}) => {
   const params= {
-      ...(category ? { categoryType: category } : {}),
-      page, size,
-      ...(category ? {categoryType: category } : {}),
+    ...(category ? { categoryType: category } : {}),
+    page, size,
   };
   const { data } = await api.get('/posts', {params});
   
@@ -297,6 +296,7 @@ export const listPosts = async({category, page = 0, size =8} = {}) => {
     content:   p.content ?? p.postContent ?? '',
     category:   p.postCategory ?? p.category ?? null,
     nickname: p.nickname ?? p.author?.nickname ?? '',
+    email: p.email ?? p.author?.email ?? null,
     created_at: p.created_at ?? p.createdAt ?? p.postDate ?? p.created_time ?? null,
     _raw: p, // 디버깅용(화면에 안 씀)
   }));
@@ -312,3 +312,59 @@ export const listPosts = async({category, page = 0, size =8} = {}) => {
 // === 단건 조회 PostPage ===
 export const getPost = (id) =>
   api.get(`/posts/${id}`).then(r=>r.data);
+
+// === 내가 쓴 글 목록  ===
+export const listMyPosts = async ({ page = 0, size = 50 } = {}) => {
+  const all = await listPosts({ page, size });
+  const me = getMyIdentityFromToken();
+  // 닉네임이 있는 경우에만 필터 (목록에 email이 없으므로 email 필터는 무의미)
+  if (me.nickname) {
+    const mine = (all || []).filter(
+      (p) =>
+        p?.nickname === me.nickname ||
+        p?._raw?.author?.nickname === me.nickname ||
+        p?._raw?.memberNickname === me.nickname ||
+        p?._raw?.writerNickname === me.nickname
+    );
+    if (mine.length) return mine;
+  }
+  // 닉네임이 없으면 전체 반환 (적어도 화면에는 뜸)
+  return all || [];
+};
+
+// === 게시글 삭제 ===
+export const deletePost = async (id) => {
+  const r = await api.delete(`/posts/${id}`);
+  return r.data; 
+};
+
+// === 게시물 수정 후 업데이트 ===
+export const updatePost = (id, payload) =>
+  api.put(`/posts/${id}`, {
+    postTitle: payload.postTitle ?? '',
+    postContent: payload.postContent ?? '',
+  }).then(r => r.data);
+
+// 식별자 추출
+const parseJwt = (t) => {
+  try {
+    const base64 = t.split('.')[1];
+    return JSON.parse(atob(base64));
+  } catch {
+    return null;
+  }
+};
+
+export const getMyIdentityFromToken = () => {
+  const t = tokenStorage.get();
+  const p = t ? parseJwt(t) : null;
+  if (!p) return { nickname: null, email: null };
+
+  const nickname =
+    p.nickname ?? p.nick ?? p.userNickname ?? p.memberNickname ?? null;
+  const email =
+    p.email ?? p.user_email ?? p.sub ?? p.userName ?? null;
+
+  return { nickname, email };
+};
+

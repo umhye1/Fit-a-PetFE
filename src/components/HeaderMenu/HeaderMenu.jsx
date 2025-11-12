@@ -13,7 +13,7 @@ const HeaderMenuContainer = styled.div`
 
 const MenuContainer = styled.div`
     display : flex;
-    width: 20vw;
+    width: 14vw;
     height: 4vw;
     justify-content: center;
     align-items: center;
@@ -27,9 +27,6 @@ const Menu1 =styled(NavLink)`
     margin : 0.6vw;
     text-decoration: none;
     color: black;
-    &:visited { 
-        color: #9DBD5D;
-    }
     &:hover { 
         color: #9DBD5D; 
     }
