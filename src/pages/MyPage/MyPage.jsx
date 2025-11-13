@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../Login/AuthContext';
-import { listMyPosts, deletePost } from '../../lib/api';
+import { listMyPosts, deletePost, listMyPets, createPet, updatePet, deletePetApi } from '../../lib/api';
 // ↑ 백엔드 DTO 확정 후 위 API 함수들 연결 예정
 
 /* ====================== Layout ====================== */
@@ -237,12 +237,20 @@ export default function MyPage() {
   const [comments, setComments] = useState([]);
   const [loadingCmt, setLoadingCmt] = useState(false);
 
-  // ===== pets state (더미) =====
+  // ===== pets state =====
   const [pets, setPets] = useState([]);
   const [loadingPet, setLoadingPet] = useState(false);
   const [petModalOpen, setPetModalOpen] = useState(false);
   const [editingPet, setEditingPet] = useState(null);
-  const [petForm, setPetForm] = useState({ name: '', type: 'DOG', gender: 'MALE', birth: '' });
+  // ⚠️ 통일: sex는 'male'|'female', age는 문자열 입력값 보관 → 저장 시 숫자 변환
+  const [petForm, setPetForm] = useState({
+    name: '',
+    type: 'DOG',
+    sex: 'male',
+    age: '1',
+    traits: '', // 콤마 구분 입력
+  });
+  const [savingPet, setSavingPet] = useState(false);
 
   // 탭 전환마다 해당 데이터 로딩
   useEffect(() => {
@@ -285,18 +293,29 @@ export default function MyPage() {
       (async () => {
         setLoadingPet(true);
         try {
-          // TODO: API 연동: const list = await listMyPets();
-          const list = [
-            { pet_id: 1, name: '콩이', type: 'DOG', gender: 'MALE', birth: '2022-05-01' },
-            { pet_id: 2, name: '달이', type: 'CAT', gender: 'FEMALE', birth: '2023-03-12' },
-          ];
-          setPets(list);
+          const list = await listMyPets();
+          setPets(list.map(p => ({
+            pet_id: p.id,
+            name: p.name,
+            sex: (p.sex || '').toLowerCase(),    // 정규화
+            age: p.age,
+            traits: Array.isArray(p.traits) ? p.traits : [],
+          })));
+        } catch (e) {
+          const status = e?.response?.status;
+          if (status === 401) {
+            window.alert('로그인이 필요합니다.');
+            navigate('/login', { state: { from: '/mypage' } });
+            return;
+          }
+          console.error('[MY PETS FAIL]', e);
+          setPets([]);
         } finally {
           setLoadingPet(false);
         }
       })();
     }
-  }, [tab, me?.nickname,navigate]);
+  }, [tab, me?.nickname, navigate]);
 
   /* ====================== Posts handlers ====================== */
   const goPost = (id) => navigate(`/post/${id}`);
@@ -331,35 +350,84 @@ export default function MyPage() {
   /* ====================== Pets handlers ====================== */
   const openCreatePet = () => {
     setEditingPet(null);
-    setPetForm({ name: '', type: 'DOG', gender: 'MALE', birth: '' });
+    // 기본값 통일
+    setPetForm({ name: '', type: 'DOG', sex: 'male', age: '1', traits: '' });
     setPetModalOpen(true);
   };
 
   const openEditPet = (pet) => {
     setEditingPet(pet);
-    setPetForm({ name: pet.name, type: pet.type, gender: pet.gender, birth: pet.birth || '' });
+    setPetForm({
+      name: pet.name || '',
+      type: 'DOG', // 서버 타입 연동 전까지 고정
+      sex: (pet.sex || 'female').toLowerCase(),
+      age: typeof pet.age === 'number' ? String(pet.age) : (pet.age || '1'),
+      traits: Array.isArray(pet.traits) ? pet.traits.join(', ') : (pet.traits || ''),
+    });
     setPetModalOpen(true);
   };
 
   const savePet = async () => {
+    if (savingPet) return;
     const payload = { ...petForm };
     if (!payload.name.trim()) return window.alert('이름을 입력하세요.');
-    if (editingPet) {
-      // TODO: await updatePet(editingPet.pet_id, payload);
-      setPets(prev => prev.map(p => (p.pet_id === editingPet.pet_id ? { ...p, ...payload } : p)));
-    } else {
-      // TODO: const created = await createPet(payload);
-      const created = { pet_id: Date.now(), ...payload };
-      setPets(prev => [created, ...prev]);
+    const ageNum = Number(payload.age);
+    if (!Number.isFinite(ageNum) || ageNum < 1) {
+      return window.alert('나이는 1 이상의 숫자로 입력하세요.');
     }
-    setPetModalOpen(false);
+
+    const genderType = ((payload.sex || 'female') === 'male' ? 'MALE' : 'FEMALE'); // MALE|FEMALE|NEUTER
+ const petType    = (payload.type || 'DOG').toUpperCase();                      // DOG|CAT
+ const traitNames = typeof payload.traits === 'string'
+   ? payload.traits.split(',').map(s => s.trim()).filter(Boolean)
+   : Array.isArray(payload.traits) ? payload.traits.filter(Boolean) : [];
+
+ const req = {
+   name: payload.name.trim(),
+   age: ageNum,
+   weight: null,            // 입력 안 쓰면 null/0.0 등 서버 허용값
+   genderType,              // ★ 서버 DTO 필드명
+   petType,                 // ★ 서버 DTO 필드명
+   image: null,
+   traitNames               // ★ 서버 DTO 필드명(List<String>)
+ };
+
+    
+
+    try {
+      setSavingPet(true);
+      if (editingPet) {
+        await updatePet(editingPet.pet_id, req);
+      } else {
+        await createPet(req);
+      }
+      const fresh = await listMyPets();
+      setPets(fresh.map(p => ({
+        pet_id: p.id,
+        name: p.name,
+        sex: (p.sex || '').toLowerCase(),
+        age: p.age,
+        traits: Array.isArray(p.traits) ? p.traits : [],
+      })));
+      setPetModalOpen(false);
+    } catch (e) {
+      const msg = e?.response?.data?.message || e.message || '저장 중 오류가 발생했습니다.';
+      window.alert(msg);
+    } finally {
+      setSavingPet(false);
+    }
   };
 
-  const deletePet = async (petId) => {
-    if (!window.confirm('펫 정보를 삭제할까요?')) return;
-    // TODO: await deletePet(petId);
-    setPets(prev => prev.filter(p => p.pet_id !== petId));
-  };
+  // const deletePet = async (petId) => {
+  //   if (!window.confirm('펫 정보를 삭제할까요?')) return;
+  //   try{
+  //     await deletePetApi(petId);
+  //     setPets(prev => prev.filter(p => p.pet_id !== petId));
+  //   } catch (e) {
+  //     const msg = e?.response?.data?.message || e.message || '삭제 중 오류가 발생했습니다.';
+  //     window.alert(msg);
+  //   }
+  // };
 
   /* ====================== Render helpers ====================== */
   const categoryLabel = useMemo(() => ({
@@ -457,12 +525,14 @@ export default function MyPage() {
                 {pets.map(pet => (
                   <PetCard key={pet.pet_id}>
                     <PetName>{pet.name}</PetName>
-                    <PetMeta>종류: {pet.type === 'DOG' ? '강아지' : pet.type === 'CAT' ? '고양이' : pet.type}</PetMeta>
-                    <PetMeta>성별: {pet.gender === 'MALE' ? '남아' : pet.gender === 'FEMALE' ? '여아' : pet.gender}</PetMeta>
-                    {pet.birth && <PetMeta>생일: {pet.birth}</PetMeta>}
+                      <PetMeta>성별: {pet.sex === 'male' ? '남아' : '여아'}</PetMeta>
+                      {typeof pet.age === 'number' && <PetMeta>나이: {pet.age}살</PetMeta>}
+                      {Array.isArray(pet.traits) && pet.traits.length > 0 && (
+                        <PetMeta>성향: {pet.traits.join(', ')}</PetMeta>
+                      )}
                     <SubRow style={{ marginTop: '0.6vw' }}>
                       <ActionBtn onClick={() => openEditPet(pet)}>편집</ActionBtn>
-                      <ActionBtn $danger onClick={() => deletePet(pet.pet_id)}>삭제</ActionBtn>
+                      {/* <ActionBtn $danger onClick={() => deletePet(pet.pet_id)}>삭제</ActionBtn> */}
                     </SubRow>
                   </PetCard>
                 ))}
@@ -478,6 +548,7 @@ export default function MyPage() {
           <h2 style={{ fontSize: '1.1vw', margin: 0 }}>
             {editingPet ? '펫 정보 편집' : '펫 등록'}
           </h2>
+
           <Field>
             <Label>이름</Label>
             <Input
@@ -486,6 +557,7 @@ export default function MyPage() {
               placeholder="예) 콩이"
             />
           </Field>
+
           <Field>
             <Label>종류</Label>
             <Select
@@ -496,28 +568,44 @@ export default function MyPage() {
               <option value="CAT">고양이</option>
             </Select>
           </Field>
+
           <Field>
             <Label>성별</Label>
             <Select
-              value={petForm.gender}
-              onChange={e => setPetForm(f => ({ ...f, gender: e.target.value }))}
+              value={petForm.sex}
+              onChange={e => setPetForm(f => ({ ...f, sex: e.target.value }))}
             >
-              <option value="MALE">남아</option>
-              <option value="FEMALE">여아</option>
+              <option value="female">여아</option>
+              <option value="male">남아</option>
             </Select>
           </Field>
+
           <Field>
-            <Label>생일(선택)</Label>
+            <Label>나이 (살)</Label>
             <Input
-              type="date"
-              value={petForm.birth}
-              onChange={e => setPetForm(f => ({ ...f, birth: e.target.value }))}
+              type="number"
+              min={1}
+              step={1}
+              value={petForm.age}
+              onChange={e => setPetForm(f => ({ ...f, age: e.target.value }))}
+              placeholder="예) 3"
+            />
+          </Field>
+
+          <Field>
+            <Label>성향 (콤마로 구분)</Label>
+            <Input
+              value={petForm.traits}
+              onChange={e => setPetForm(f => ({ ...f, traits: e.target.value }))}
+              placeholder="예) 온순함, 겁많음"
             />
           </Field>
 
           <div style={{ display: 'flex', gap: '0.6vw', justifyContent: 'flex-end' }}>
             <ActionBtn onClick={() => setPetModalOpen(false)}>취소</ActionBtn>
-            <ActionBtn onClick={savePet}>{editingPet ? '저장' : '등록'}</ActionBtn>
+            <ActionBtn onClick={savePet} disabled={savingPet}>
+              {savingPet ? '저장 중…' : (editingPet ? '저장' : '등록')}
+            </ActionBtn>
           </div>
         </ModalBody>
       </ModalBack>

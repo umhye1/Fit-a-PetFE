@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { UI } from '../../../styles/uiToken';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { uploadImage, createPetPost, getPetPost, updatePetPost, listMyPets } from '../../../lib/api';
 
 const Page = styled.div`
   display: flex;
@@ -83,13 +84,53 @@ const Button = styled.button`
 export default function PetpostWrite() {
   const nav = useNavigate();
   const fileRef = useRef(null);
+  const { search } = useLocation();
+  const editId = new URLSearchParams(search).get('edit');
+  const isEdit = !!editId;
 
-  const [form, setForm] = useState({
-    title: '', category: 'FREE', content: '', tags: ''
-  });
+  const [form, setForm] = useState({ petId: '', title: '', category: 'GeneralPost', content: '', tags: '' });
+  const [myPets, setMyPets] = useState([]);
+  const [loadingPets, setLoadingPets] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoadingPets(true);
+        const rows = await listMyPets();
+        setMyPets(rows);
+        // 하나만 있으면 자동 선택
+        if (rows.length === 1) setForm(f => ({ ...f, petId: String(rows[0].id) }));
+      } catch(e) {
+        console.error('[listMyPets FAIL]', e);
+      } finally {
+        setLoadingPets(false);
+      }
+    })();
+  }, []);
+  
   const [file, setFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  // 수정
+  useEffect(()=>{
+    if(!isEdit) return;
+    (async () =>{
+      try{
+        const d = await getPetPost(editId);
+        setForm({
+          title: d.title ?? '',
+          category: d.category ?? 'GeneralPost',
+          content: d.content ?? '',
+          tags: (Array.isArray(d.tags) ? d.tags.join(','): (d.tags ?? ''))
+        });
+      } catch (e){
+        setErrorMsg('게시글 정보를 불러오지 못했습니다.');
+      }
+    })();
+  },[isEdit, editId]);
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -97,7 +138,14 @@ export default function PetpostWrite() {
   };
   const handleFile = (e) => setFile(e.target.files?.[0] ?? null);
 
+
+
   const submit = async () => {
+    if (!String(form.petId).trim()) {
+      setErrorMsg('반드시 내 펫을 선택하세요.');
+      return;
+    }
+
     if (!form.title.trim() || !form.content.trim()) {
       setErrorMsg('제목과 내용을 입력하세요.');
       return;
@@ -106,29 +154,42 @@ export default function PetpostWrite() {
       setSubmitting(true);
       setErrorMsg('');
 
-      // 파일 포함 시 multipart
-      const token = localStorage.getItem('accessToken');
-      const body = new FormData();
-      body.append('title', form.title);
-      body.append('category', form.category);
-      body.append('content', form.content);
-      body.append('tags', form.tags);
-      if (file) body.append('image', file);
+      // 이미지 presign 받아서 s3에 업로드
+      let imageUrl = undefined;
+      if (file) {
+        imageUrl = await uploadImage(file); // 서버가 돌려준 최종 경로/URL\
+      }
+      // 태그 문자열 - 배열
+      const tagsArray = form.tags
+        ? form.tags.split(',').map(s => s.trim()).filter(Boolean)
+        : [];
 
-      const res = await fetch('/api/petposts', {
-        method: 'POST',
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-          // multipart 이므로 Content-Type 자동 생성 (헤더에 지정하지 않음)
-        },
-        body
-      });
-      if (!res.ok) throw new Error(`작성 실패: ${res.status}`);
-      // const data = await res.json();
+      // 등록 / 수정
+      const payload = {
+        title: form.title,
+        category: form.category,
+        petId: Number(form.petId),
+        content: form.content,
+        tags: tagsArray,
+        ...(imageUrl ? { imageUrl } : {}) // 새 파일 없으면 기존 이미지 유지(수정 시)
+     };
 
-      alert('작성 완료!');
-      nav('/petposts'); // 목록/상세로 이동 경로 프로젝트에 맞춰 변경
+      if (isEdit) {
+        await updatePetPost(editId, payload);
+        alert('수정 완료!');
+        nav(`/petposts/${editId}`, { replace: true });
+      } else {
+        const created = await createPetPost(payload);
+        const newId = created?.id;
+        alert('작성 완료!');
+        nav(newId ? `/petposts/${newId}` : '/petposts');
+      }
     } catch (e) {
+        if(e?.response?.status === 401){
+          alert('로그인이 필요합니다.');
+          nav('/login', { state: { from: isEdit ? `/petpostWrite?edit=${editId}` : '/petpostWrite' } });
+          return;
+        }
       setErrorMsg(e.message);
     } finally {
       setSubmitting(false);
@@ -138,7 +199,7 @@ export default function PetpostWrite() {
   return (
     <Page>
       <Card>
-        <Title>게시글 작성</Title>
+        <Title>{isEdit ? '게시글 수정' : '게시글 작성'}</Title>
 
         <Row>
           <Label>제목</Label>
@@ -153,13 +214,32 @@ export default function PetpostWrite() {
         <Row>
           <Label>카테고리</Label>
           <Select name="category" value={form.category} onChange={handleChange}>
-            <option value="HOT">인기글</option>
-            <option value="ALL">전체 게시판</option>
-            <option value="FREE">자유 게시판</option>
-            <option value="INFO">반려동물 정보</option>
-            <option value="FOOD">맛집</option>
-            <option value="TRAIL">산책로 추천</option>
+            <option value="GeneralPost">자유게시판</option>
+            <option value="InfoPost">정보게시판</option>
           </Select>
+        </Row>
+
+        <Row>
+          <Label>반려동물</Label>
+          <Select
+            name="petId"
+            value={form.petId}
+            onChange={handleChange}
+          >
+            <option value="">내 펫 선택</option>
+            {myPets.map(p => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+                {p.sex ? ` / ${String(p.sex).toUpperCase()}` : ''}
+                {p.petType ? ` / ${p.petType}` : ''}
+              </option>
+            ))}
+          </Select>
+          {!!(!loadingPets && !myPets.length) && (
+            <Hint>
+              등록된 펫이 없습니다. 마이페이지 &gt; 내 펫 관리에서 먼저 펫을 등록해주세요.
+            </Hint>
+          )}
         </Row>
 
         <Row style={{ alignItems: 'flex-start' }}>
@@ -198,7 +278,7 @@ export default function PetpostWrite() {
         <ButtonRow>
           <Button type="button" onClick={() => nav(-1)}>취소</Button>
           <Button type="button" onClick={submit} disabled={submitting}>
-            {submitting ? '작성 중…' : '작성하기'}
+            {submitting ? (isEdit ? '수정 중…' : '작성 중…') : (isEdit ? '수정하기' : '작성하기')}
           </Button>
         </ButtonRow>
       </Card>

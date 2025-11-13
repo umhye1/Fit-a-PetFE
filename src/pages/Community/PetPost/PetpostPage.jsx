@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect} from 'react';
 import styled from "styled-components";
 import { Link } from 'react-router-dom';
 import { UI } from '../../../styles/uiToken';
 import PetpostInfo from './PetpostInfo';
+import { useParams } from 'react-router-dom';
+import { getPetPost } from '../../../lib/api';
 
 const Page = styled.div`
   width: 100%;
@@ -240,9 +242,12 @@ const CommentButton = styled.button`
 const PetpostPage = () => {
   const [commentInput, setCommentInput] = useState('');
   const [comments, setComments] = useState([
-    { id: 1, user: "혜원", text: "재밌어요", time: "1시간 전" },
-  ]);
-
+    { id: 1, user: '혜원', text: '재밌어요', time: '1시간 전' },]);
+  const { id } = useParams();
+  const [post, setPost] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState('');
+ 
   const handleAddComment = () => {
     if (commentInput.trim() === "") return;
     const newComment = {
@@ -253,11 +258,28 @@ const PetpostPage = () => {
   };
 
   // 임시 petId 및 mock fetcher (BE 연동 전 확인용)
-  const petId = 1;
-  const mockPetFetcher = async (id) => ({
-    id, name: '몽실이', species: 'Dog', gender: 'Female',
-    age: 4, traits: ['온순함','사람 좋아함','산책 좋아함'], bio: '공원 산책러'
-  });
+  // const petId = 1;
+  // const mockPetFetcher = async (id) => ({
+  //   id, name: '몽실이', species: 'Dog', gender: 'Female',
+  //   age: 4, traits: ['온순함','사람 좋아함','산책 좋아함'], bio: '공원 산책러'
+  // });
+  
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoading(true);
+        setErr('');
+        const d = await getPetPost(id); // { title, authorNickname, createdAt, content, imageUrl, ... }
+        setPost(d);
+      } catch (e) {
+        setErr('게시글을 불러오지 못했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [id]);
+
+
 
   return (
     <Page>
@@ -277,12 +299,12 @@ const PetpostPage = () => {
         <Content>
           <MainContainer>
             <TitleContainer>
-              <Title>제목</Title>
+              <Title>{post?.title ?? '...'}</Title>
               <UserWrapper>
                 <UserImg/>
                 <UserContainer>
-                  <UserId>혜원</UserId>
-                  <DateText>1시간 전</DateText>
+                  <UserId>{post?.authorNickname ?? '-'}</UserId>
+                  <DateText>{post?.createdAt ?? ''}</DateText>
                 </UserContainer>
               </UserWrapper>
             </TitleContainer>
@@ -292,20 +314,20 @@ const PetpostPage = () => {
 
             <FeedPageContainer>
               <TopSection>
-                <ImgContainer />
+                <ImgContainer>
+                  {!!post?.imageUrl && (
+                    <img src={post.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  )}
+                </ImgContainer>
                 <RightTopCol>
                   <PetInfoContainer>
-                    {/*  펫 정보 */}
-                    <PetpostInfo petId={petId} fetcher={mockPetFetcher} />
+                    <PetpostInfo petId={post?.petId}/>
                   </PetInfoContainer>
 
-                  <FeedPageBox>
-                    같이 산책하실 분 구함니다 ㅋ
-                  </FeedPageBox>
+                  <FeedPageBox>{post?.content ?? ''}</FeedPageBox>
                 </RightTopCol>
               </TopSection>
 
-              {/* 댓글 목록 */}
               {comments.map((c) => (
                 <CommentContainer key={c.id}>
                   <UserWrapperLeft>

@@ -1,9 +1,10 @@
-// src/lib/api.js
 import axios from 'axios';
 
 /* ======================= BaseURL ======================= */
 export const API_BASE_URL = 'http://3.37.117.222:8080';
+const PETS_BASE = '/api/mypage/pet';
 console.log('[API] base =', API_BASE_URL);
+const unwrapAny = (d) => (d && typeof d === 'object' && 'data' in d ? d.data : d);
 
 /* ======================= Token Storage ======================= */
 const ACCESS_TOKEN_KEY = 'accessToken';
@@ -368,3 +369,179 @@ export const getMyIdentityFromToken = () => {
   return { nickname, email };
 };
 
+// === petpost - 이미지 ===
+
+export const getPresignedUrl = async ({ filename, contentType }) => {
+  const { data } = await api.get('/files/presign', { params: { filename, contentType } });
+  // 기대 응답: { signedUrl, imageUrl } or CommonResponse({ data: { signedUrl, imageUrl }})
+  return data?.data ?? data;
+};
+
+export const putToS3 = async (signedUrl, file, contentType) => {
+  await axios.put(signedUrl, file, { headers: { 'Content-Type': contentType } });
+};
+
+// ---------- PetPost 정규화 ----------
+function normalizePetPost(p = {}) {
+  return {
+    id: p.petPostId ?? p.id ?? null,
+    title: p.petPostTitle ?? p.title ?? '',
+    content: p.petPostContent ?? p.content ?? '',
+    category: p.petPostCategory ?? p.category ?? null,
+    authorNickname: p.nickname ?? p.authorNickname ?? '',
+    createdAt: p.petPostDate ?? p.petPostEditDate ?? p.createdAt ?? null,
+    imageUrl: p.imageUrl ?? null,
+    petId: p.petId ?? null,
+    petName: p.petName,
+    petAge: p.petAge,
+    petGender: p.petGender,
+    petType: p.petType,
+    // 문자열로 오는 경우도 분기
+    petTraits: Array.isArray(p.petTraits)
+      ? p.petTraits
+      : (typeof p.petTraits === 'string'
+          ? p.petTraits.split(',').map(s => s.trim()).filter(Boolean)
+          : []),
+    tags: p.tags ?? [],
+    _raw: p,
+  };
+}
+
+// === petpost 생성 ===
+export const createPetPost = async (payload) => {
+  const body = {
+    petId: payload.petId,                                   
+    petPostTitle: payload.title,                           
+    petPostCategory: payload.category,                
+    petPostContent: payload.content,
+    petPostDate: payload.petPostDate ?? new Date().toISOString(),
+    imageUrl: payload.imageUrl ?? null,
+  };
+  const { data } = await api.post('/petposts', body, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return normalizePetPost(unwrapOne(data));
+};
+
+// === petpost 단건 조회 ===
+export const getPetPost = async (id) => {
+  const { data } = await api.get(`/petposts/${id}`);
+  return normalizePetPost(unwrapOne(data));
+};
+
+// === petpost 수정 ===
+export const updatePetPost = async (id, payload) => {
+  const body = {
+    petPostTitle: payload.title,
+    petPostEditDate: new Date().toISOString(),
+    petPostContent: payload.content,
+    imageUrl: payload.imageUrl ?? null,
+  };
+  const { data } = await api.put(`/petposts/${id}`, body, {
+    headers: { 'Content-Type': 'application/json' },  
+  });
+  return normalizePetPost(unwrapOne(data));
+};
+
+
+// === petpost 카테고리 ===
+// api.js
+export const listPetPosts = async ({ category, page = 0, size = 6 } = {}) => {
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn('[listPetPosts] 목록 API 미구현: GET /petposts 가 없어 빈 배열을 반환합니다.');
+  }
+  return [];
+};
+
+
+// ---------- 공통 언래퍼 ----------
+const unwrapList = (d) => {
+  if (Array.isArray(d)) return d;
+  if (Array.isArray(d?.data)) return d.data;
+  if (Array.isArray(d?.content)) return d.content;
+  if (Array.isArray(d?.items)) return d.items;
+  if (Array.isArray(d?.data?.content)) return d.data.content;
+  if (Array.isArray(d?.data?.items)) return d.data.items;
+  return [];
+};
+
+const unwrapOne = (d) => d?.data ?? d;
+
+
+// --- 내 펫 목록 ---
+export const listMyPets = async () => {
+  const res = await api.get(PETS_BASE);
+  const data = unwrapAny(res.data);
+  const arr = Array.isArray(data) ? data : (Array.isArray(data?.content) ? data.content : []);
+  return arr.map((p) => ({
+    id: p.id,
+    userId: p.memberId ?? null,
+    name: p.name ?? '',
+    sex: (p.petGenderType || '').toString().toLowerCase(), // 'male'|'female'|'neuter'
+    age: p.age ?? null,
+    type: p.petType ?? null,            // 필요 시 사용
+    traits: Array.isArray(p.traits) ? p.traits : [],
+    _raw: p,
+  }));
+};
+
+// === 펫 생성 ===
+export const createPet = async ({ name, age, weight = null, genderType, petType, image = null, traitNames = [] }) => {
+  if (!name?.trim()) throw new Error('이름(name)은 필수입니다.');
+  if (!genderType) throw new Error('genderType이 필요합니다. (MALE/FEMALE/NEUTER)');
+  if (!petType) throw new Error('petType이 필요합니다. (DOG/CAT)');
+  if (typeof age !== 'number' || age <= 0) throw new Error('나이(age)는 1 이상 숫자여야 합니다.');
+
+  const body = { name: name.trim(), age, weight, genderType, petType, image, traitNames };
+  const res = await api.post('/api/mypage/pet', body, {
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+  });
+  return normalizePetResponse(res);
+};
+
+// === 펫 수정 ===
+export const updatePet = async (petId, { name, age, weight = null, genderType, petType, image = null, traitNames = [] }) => {
+  if (!petId) throw new Error('petId가 필요합니다.');
+  const body = { name: name?.trim() ?? '', age, weight, genderType, petType, image, traitNames };
+  const res = await api.put(`/api/mypage/pet/${petId}`, body, {
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+  });
+  return normalizePetResponse(res);
+};
+
+
+// === 펫 삭제 ===
+export const deletePetApi = async (petId) => {
+  if (!petId) throw new Error('petId가 필요합니다.');
+  const res = await api.delete(`${PETS_BASE}/${petId}`);
+  return res.data; // CommonResponse 그대로 반환
+};
+
+
+// 공통 응답 정규화
+const normalizePetResponse = (res) => {
+  const data = res?.data?.data ?? res?.data ?? {};
+  return {
+    id: data.petId ?? data.id,
+    userId: data.userId ?? null,
+    name: data.name ?? '',
+    sex: data.sex ?? data.gender ?? data.petGender ?? null,
+    age: data.age ?? data.petAge ?? null,
+    traits: Array.isArray(data.traits) ? data.traits
+          : (Array.isArray(data.petTraits) ? data.petTraits
+          : (typeof data.traits === 'string' ? data.traits.split(',').map(s=>s.trim()).filter(Boolean)
+          : (typeof data.petTraits === 'string' ? data.petTraits.split(',').map(s=>s.trim()).filter(Boolean) : []))),
+    _raw: res.data,
+  };
+};
+
+// === 이미지 업로드  ===
+export const uploadImage = async (file) => {
+  const form = new FormData();
+  form.append('file', file);
+  const { data } = await api.post('/api/image/upload', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+   // CommonResponse<String> -> data 필드 우선 반환
+  return data?.data ?? data; // 업로드된 이미지 URL/경로
+};
