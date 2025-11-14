@@ -353,10 +353,20 @@ export const updatePost = (id, payload) =>
 // 식별자 추출
 const parseJwt = (t) => {
   try {
-    const base64 = t.split('.')[1];
-    return JSON.parse(atob(base64));
-  } catch {
-    return null;
+   const part = t.split('.')[1];
+  if (!part) return null;
+    const base64 = part.replace(/-/g, '+').replace(/_/g, '/')
+      .padEnd(Math.ceil(part.length / 4) * 4, '=');
+     
+    const json = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+     );
+    return JSON.parse(json);
+    } catch {
+      return null;
   }
 };
 
@@ -365,10 +375,11 @@ export const getMyIdentityFromToken = () => {
   const p = t ? parseJwt(t) : null;
   if (!p) return { nickname: null, email: null };
 
-  const nickname =
-    p.nickname ?? p.nick ?? p.userNickname ?? p.memberNickname ?? null;
-  const email =
-    p.email ?? p.user_email ?? p.sub ?? p.userName ?? null;
+  const nickname = p.nickname ?? p.nick ?? p.userNickname ??
+    p.memberNickname ?? p.name ?? p.username ?? null;
+    
+  const email = p.email ?? p.user_email ?? p.userEmail ??
+    p.sub ?? p.userName ?? null;
 
   return { nickname, email };
 };
@@ -555,7 +566,7 @@ export const uploadImage = async (file) => {
 
 // === 내가 쓴 Petpost 목록 ===
 export const listMyPetPosts = async ({ page = 0, size = 10 } = {}) => {
-  // BE: /petposts/user 가 전체(로그인 사용자) 게시글을 반환
+ 
   const { data } = await api.get('/petposts/user', { params: { page, size } });
   const arr = Array.isArray(data?.data) ? data.data
            : Array.isArray(data) ? data : [];
@@ -570,5 +581,25 @@ export const listMyPetPosts = async ({ page = 0, size = 10 } = {}) => {
   }));
 };
 
+// === 내가 쓴 Petpost 삭제 ===
 export const deletePetPost = async (id) =>
   api.delete(`/petposts/${id}`).then(r => r.data);
+
+// === 댓글 저장 ===
+export const createComment = async (postId, text) => {
+  const { data } = await api.post(`/api/posts/${postId}/comments`, { comment: text });
+  return data?.data ?? data; // { commentId, comment, lastModified }
+};
+
+// === 댓글 수정 : 작성자가 같으면 수정 ===
+export const updateComment = async (postId, commentId, text) => {
+  const { data } = await api.put(`/api/posts/${postId}/comments/${commentId}`, { comment: text });
+  return data?.data ?? data; // { commentId, comment, lastModified }
+};
+
+// === 댓글 삭제 : 작성자가 같으면 삭제 ===
+export const deleteComment = async (commentId) => {
+  // 백엔드는 ResponseEntity<String> 반환
+  const { data } = await api.delete(`/api/comments/${commentId}`);
+  return data; // "댓글 삭제 성공" 등
+};

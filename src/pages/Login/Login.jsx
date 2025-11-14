@@ -192,6 +192,10 @@ function Login() {
       // 전역 저장 + AuthContext 갱신
       tokenStorage.set(token);
       login?.(token);
+      
+      if (resp.data?.nickname) {
+        localStorage.setItem('nickname', resp.data.nickname);
+      }
 
       navigate('/', { replace: true });
     } catch (err) {

@@ -211,7 +211,6 @@ const fmt = d => {
 
 const TABS = [
   { key: 'posts', label: '내가 쓴 글' },
-  { key: 'comments', label: '내가 쓴 댓글' },
   { key: 'pets', label: '내 펫 관리' },
 ];
 
