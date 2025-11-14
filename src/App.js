@@ -71,7 +71,7 @@ function App() {
           <Route path="/postWrite" element={<PostWrite />} />
 
           <Route path="/petpost" element={<Petpost />} />
-          <Route path="/petpostPage" element={<PetpostPage />} />
+          <Route path="/petpostPage/:id" element={<PetpostPage />} />
           <Route path="/petpostWrite" element={<PetpostWrite />} />
           <Route path="/searchMate" element={<SearchMate />} />
 

@@ -4,7 +4,11 @@ import axios from 'axios';
 export const API_BASE_URL = 'http://3.37.117.222:8080';
 const PETS_BASE = '/api/mypage/pet';
 console.log('[API] base =', API_BASE_URL);
-const unwrapAny = (d) => (d && typeof d === 'object' && 'data' in d ? d.data : d);
+const unwrapAny = (d) => {
+  if (!d || typeof d !== 'object') return d;
+  if ('data' in d) return d.data;
+  return d;
+};
 
 /* ======================= Token Storage ======================= */
 const ACCESS_TOKEN_KEY = 'accessToken';
@@ -396,13 +400,16 @@ function normalizePetPost(p = {}) {
     petAge: p.petAge,
     petGender: p.petGender,
     petType: p.petType,
-    // 문자열로 오는 경우도 분기
     petTraits: Array.isArray(p.petTraits)
       ? p.petTraits
       : (typeof p.petTraits === 'string'
           ? p.petTraits.split(',').map(s => s.trim()).filter(Boolean)
           : []),
-    tags: p.tags ?? [],
+    tags: Array.isArray(p.tags) ? p.tags
+        : (Array.isArray(p.petTraits) ? p.petTraits
+         : (typeof p.petTraits === 'string'
+            ? p.petTraits.split(',').map(s => s.trim()).filter(Boolean)
+            : [])),
     _raw: p,
   };
 }
@@ -445,12 +452,12 @@ export const updatePetPost = async (id, payload) => {
 
 
 // === petpost 카테고리 ===
-// api.js
 export const listPetPosts = async ({ category, page = 0, size = 6 } = {}) => {
-  if (process.env.NODE_ENV !== 'production') {
-    console.warn('[listPetPosts] 목록 API 미구현: GET /petposts 가 없어 빈 배열을 반환합니다.');
-  }
-  return [];
+  // GET /petposts/all  (전체 목록)
+  const res = await api.get('/petposts/all');
+  const raw = unwrapList(res?.data);
+  const rows = raw.map(normalizePetPost);
+  return rows.slice(0, size);
 };
 
 
@@ -545,3 +552,23 @@ export const uploadImage = async (file) => {
    // CommonResponse<String> -> data 필드 우선 반환
   return data?.data ?? data; // 업로드된 이미지 URL/경로
 };
+
+// === 내가 쓴 Petpost 목록 ===
+export const listMyPetPosts = async ({ page = 0, size = 10 } = {}) => {
+  // BE: /petposts/user 가 전체(로그인 사용자) 게시글을 반환
+  const { data } = await api.get('/petposts/user', { params: { page, size } });
+  const arr = Array.isArray(data?.data) ? data.data
+           : Array.isArray(data) ? data : [];
+  return arr.map(normalizePetPost).map(r => ({
+    ...r,
+    _kind: 'PETPOST',                 // 구분자
+    post_id: r.id,                    // MyPage 기존 렌더 재사용
+    created_at: r.createdAt,
+    title: r.title,
+    content: r.content,
+    category: r.category,             // 'GeneralPost' | 'InfoPost'
+  }));
+};
+
+export const deletePetPost = async (id) =>
+  api.delete(`/petposts/${id}`).then(r => r.data);

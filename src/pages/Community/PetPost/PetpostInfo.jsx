@@ -81,7 +81,7 @@ export default function PetpostInfo({ petId, fetcher }) {
   }, []);
 
   useEffect(() => {
-    if (!petId) return;
+    if (!petId && !fetcher) return;
     (async () => {
       try {
         setLoading(true);

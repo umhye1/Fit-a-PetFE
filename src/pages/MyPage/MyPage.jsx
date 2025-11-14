@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../Login/AuthContext';
-import { listMyPosts, deletePost, listMyPets, createPet, updatePet, deletePetApi } from '../../lib/api';
+import { listMyPosts, deletePost, listMyPets, createPet, updatePet, deletePetApi, listMyPetPosts, deletePetPost } from '../../lib/api';
 // ↑ 백엔드 DTO 확정 후 위 API 함수들 연결 예정
 
 /* ====================== Layout ====================== */
@@ -258,8 +258,21 @@ export default function MyPage() {
       (async () => {
         setLoadingPost(true);
         try {
-            const list = await listMyPosts({ page:0, size: 50});
-            setPosts(list);
+          const [postList, petpostList] = await Promise.all([      
+            listMyPosts({ page: 0, size: 50 }),     // 일반 Post
+            listMyPetPosts({ page: 0, size: 50 }),  // PetPost
+          ]);
+          const normalizedPosts = (postList || []).map(p => ({
+            ...p,
+            _kind: 'POST',
+          }));
+          // 최신순 정렬
+          const merged = [...normalizedPosts, ...petpostList].sort((a,b) => {
+            const ta = new Date(a.created_at || a.createdAt || 0).getTime();
+            const tb = new Date(b.created_at || b.createdAt || 0).getTime();
+            return tb - ta;
+          });
+          setPosts(merged);
         } catch (e){
             const status = e?.response?.status;
             if (status === 401) {
@@ -476,17 +489,37 @@ export default function MyPage() {
             {!loadingPost && posts.map(p => (
               <Card key={p.post_id}>
                 <RowTop>
-                  <PostTitle>{p.title}</PostTitle>
-                  <Meta>{categoryLabel[p.category] || p.category} · {fmt(p.created_at)}</Meta>
+                  <PostTitle>{p._kind === 'PETPOST' ? '[PET]' : '[POST]'} {p.title}</PostTitle>
+                  <Meta>
+                    {(p._kind === 'PETPOST'
+                      ? (p.category === 'GeneralPost' ? '자유' :
+                        p.category === 'InfoPost'    ? '정보' : p.category)
+                      : (categoryLabel[p.category] || p.category)
+                    )} · {fmt(p.created_at)}
+                  </Meta>
                 </RowTop>
                 <Excerpt>
                   {(p.content || '').slice(0, 140)}
                   {(p.content || '').length > 140 ? '…' : ''}
                 </Excerpt>
                 <SubRow style={{ marginTop: '0.6vw' }}>
-                  <ActionBtn onClick={() => goPost(p.post_id)}>보기</ActionBtn>
-                  <ActionBtn onClick={() => editPost(p.post_id)}>수정</ActionBtn>
-                  <ActionBtn $danger onClick={() => removePost(p.post_id)}>삭제</ActionBtn>
+                  {p._kind === 'PETPOST' ? (
+                    <>
+                      <ActionBtn onClick={() => navigate(`/petpostPage/${p.post_id}`)}>보기</ActionBtn>
+                      <ActionBtn onClick={() => navigate(`/petpostWrite?edit=${p.post_id}`)}>수정</ActionBtn>
+                      <ActionBtn $danger onClick={async () => {
+                        if (!window.confirm('게시글을 삭제할까요?')) return;
+                        await deletePetPost(p.post_id);
+                        setPosts(prev => prev.filter(x => !(x._kind==='PETPOST' && x.post_id===p.post_id)));
+                      }}>삭제</ActionBtn>
+                    </>
+                  ) : (
+                    <>
+                      <ActionBtn onClick={() => goPost(p.post_id)}>보기</ActionBtn>
+                      <ActionBtn onClick={() => editPost(p.post_id)}>수정</ActionBtn>
+                      <ActionBtn $danger onClick={() => removePost(p.post_id)}>삭제</ActionBtn>
+                    </>
+                  )}
                 </SubRow>
               </Card>
             ))}

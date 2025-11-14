@@ -1,4 +1,4 @@
-import React, { useState ,useEffect} from 'react';
+import React, { useState ,useEffect, useCallback } from 'react';
 import styled from "styled-components";
 import { Link } from 'react-router-dom';
 import { UI } from '../../../styles/uiToken';
@@ -257,12 +257,23 @@ const PetpostPage = () => {
     setCommentInput('');
   };
 
-  // 임시 petId 및 mock fetcher (BE 연동 전 확인용)
-  // const petId = 1;
-  // const mockPetFetcher = async (id) => ({
-  //   id, name: '몽실이', species: 'Dog', gender: 'Female',
-  //   age: 4, traits: ['온순함','사람 좋아함','산책 좋아함'], bio: '공원 산책러'
-  // });
+  const snapshotFetcher = useCallback(async () => {
+    if (!post) throw new Error('펫 정보 없음');
+    // 문자열 "온순함, 겁많음" → 배열 변환
+    const traits = Array.isArray(post.petTraits)
+      ? post.petTraits
+      : (typeof post.petTraits === 'string'
+        ? post.petTraits.split(',').map(s => s.trim()).filter(Boolean)
+        : []);
+    return {
+      name:    post.petName ?? '-',
+      species: post.petType ?? '-',  
+      gender:  post.petGender ?? '-',
+      age:     post.petAge ?? null,
+      traits,
+      bio:     '',                    // 스냅샷에 소개가 없으니 빈값
+    };
+  }, [post]);
   
   useEffect(() => {
     (async () => {
@@ -284,16 +295,11 @@ const PetpostPage = () => {
   return (
     <Page>
       <Layout>
-        {/* Sidebar */}
         <Sidebar>
-          <CategoryTitle>게시글 카테고리 목록</CategoryTitle>
-          <CategoryLink to="/post">인기글</CategoryLink>
-          <CategoryLink to="/post">전체 게시판</CategoryLink>
-          <CategoryLink to="#">자유 게시판</CategoryLink>
-          <CategoryLink to="#">반려동물 정보 게시판</CategoryLink>
-          <CategoryLink to="#">맛집 게시판</CategoryLink>
-          <CategoryLink to="#">산책로 추천 게시판</CategoryLink>
-        </Sidebar>
+          {/* <CategoryTitle>카테고리</CategoryTitle>
+          <CategoryLink to="/petpost?category=GeneralPost">자유게시판</CategoryLink>
+          <CategoryLink to="/petpost?category=InfoPost">정보게시판</CategoryLink> */}
+        </Sidebar> 
 
         {/* Content */}
         <Content>
@@ -321,28 +327,30 @@ const PetpostPage = () => {
                 </ImgContainer>
                 <RightTopCol>
                   <PetInfoContainer>
-                    <PetpostInfo petId={post?.petId}/>
+                    <PetpostInfo petId={post?.petId ?? null}
+                    fetcher={post?.petId ? undefined : snapshotFetcher}
+                  />
                   </PetInfoContainer>
 
                   <FeedPageBox>{post?.content ?? ''}</FeedPageBox>
                 </RightTopCol>
               </TopSection>
 
-              {comments.map((c) => (
+              {/* {comments.map((c) => (
                 <CommentContainer key={c.id}>
                   <UserWrapperLeft>
                     <UserImg />
                     <UserContainer>
                       <UserId>{c.user}</UserId>
-                      <DateText>{c.time}</DateText>
+                      <DateText>{post?.createdAt ? new Date(post.createdAt).toLocaleString() : ''}</DateText>
                     </UserContainer>
                   </UserWrapperLeft>
                   <CommentBox>{c.text}</CommentBox>
                 </CommentContainer>
-              ))}
+              ))} */}
 
               {/* 댓글 작성 */}
-              <CommentContainer>
+              {/* <CommentContainer>
                 <UserWrapperLeft>
                   <UserImg />
                   <UserContainer>
@@ -358,7 +366,7 @@ const PetpostPage = () => {
                   />
                   <CommentButton onClick={handleAddComment}>작성하기</CommentButton>
                 </CommentWriteContainer>
-              </CommentContainer>
+              </CommentContainer> */}
             </FeedPageContainer>
           </MainContainer>
         </Content>

@@ -14,7 +14,7 @@ const Card = styled.div`
   width: 56vw;
   background: ${UI.white};
   border: 0.06vw solid #99CC31;
-  border-radius: 1vw;
+  border-radius: 1vw;ㄹ
   box-shadow: ${UI.shadow};
   padding: 2vw;
 `;
@@ -84,13 +84,26 @@ const Button = styled.button`
 export default function PetpostWrite() {
   const nav = useNavigate();
   const fileRef = useRef(null);
-  const { search } = useLocation();
+  const { search, pathname } = useLocation();
   const editId = new URLSearchParams(search).get('edit');
   const isEdit = !!editId;
 
   const [form, setForm] = useState({ petId: '', title: '', category: 'GeneralPost', content: '', tags: '' });
   const [myPets, setMyPets] = useState([]);
   const [loadingPets, setLoadingPets] = useState(false);
+
+  const onAuthFail = (e) => {
+    const status = e?.response?.status ?? e?.status;
+    if (status === 401 || status === 403) {
+      alert('로그인이 필요합니다.');
+      const from = isEdit ? `/petpostWrite?edit=${editId}` : '/petpostWrite';
+      const fallbackFrom = `${pathname}${search || ''}`;
+      nav('/login', { state: { from: from || fallbackFrom } });
+      return true; 
+    }
+    return false;
+  };
+
 
   useEffect(() => {
     (async () => {
@@ -102,6 +115,7 @@ export default function PetpostWrite() {
         if (rows.length === 1) setForm(f => ({ ...f, petId: String(rows[0].id) }));
       } catch(e) {
         console.error('[listMyPets FAIL]', e);
+        if (onAuthFail(e)) return; // 로그인이동
       } finally {
         setLoadingPets(false);
       }
@@ -122,6 +136,7 @@ export default function PetpostWrite() {
           title: d.title ?? '',
           category: d.category ?? 'GeneralPost',
           content: d.content ?? '',
+          petId: d.petId ? String(d.petId) : '',
           tags: (Array.isArray(d.tags) ? d.tags.join(','): (d.tags ?? ''))
         });
       } catch (e){
@@ -177,19 +192,15 @@ export default function PetpostWrite() {
       if (isEdit) {
         await updatePetPost(editId, payload);
         alert('수정 완료!');
-        nav(`/petposts/${editId}`, { replace: true });
+        nav(`/petpostPage/${editId}`, { replace: true });
       } else {
         const created = await createPetPost(payload);
         const newId = created?.id;
         alert('작성 완료!');
-        nav(newId ? `/petposts/${newId}` : '/petposts');
+        nav(newId ? `/petpostPage/${newId}` : '/petposts');
       }
     } catch (e) {
-        if(e?.response?.status === 401){
-          alert('로그인이 필요합니다.');
-          nav('/login', { state: { from: isEdit ? `/petpostWrite?edit=${editId}` : '/petpostWrite' } });
-          return;
-        }
+      if (onAuthFail(e)) return; // 401/403이면 알럿 후 로그인으로 이동
       setErrorMsg(e.message);
     } finally {
       setSubmitting(false);

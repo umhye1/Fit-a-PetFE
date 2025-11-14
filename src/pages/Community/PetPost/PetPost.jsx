@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import RecommendWalkMate from '../RecommendWalkMate/RecommendWalkMate';
 import { Card } from '../../../components/Card/Card';
 
@@ -26,12 +26,13 @@ const CategroyContainer = styled.div`
     flex-shrink: 0;
 `;
 
-const CategroyP = styled.div`
+const CategroyP = styled(Link)`
     display: flex;
     padding: 0.8vw;
     font-weight: 600;
     font-size: 1vw;
     color : #2E2923;
+    text-decoration: none;
 
     &:hover ,
     &:active { 
@@ -76,6 +77,7 @@ const FeedWrite = styled(Link)`
 const PetPhotoContainer= styled.div`
     width: 100%;
     width: calc(100% - 19.2vw);
+    margin-bottom: 10vw;
 `;
 
 const PetPhotoTitle = styled.div`
@@ -86,26 +88,30 @@ const PetPhotoTitle = styled.div`
 `;
 
 
-const PetPhoto = () => {
-  return (
-    <CommunityContainer>
-        <RecommendWalkMate/>
-        <MainContainer>
-            <CategroyContainer>
-                <CategroyP>내 펫 뽐내기</CategroyP>
-            </CategroyContainer>
-            <PetPhotoContainer>
-                <FeedBoxContainer>
-                    <FeedBoxTitle>동네 생활 자유 게시판</FeedBoxTitle>
-                    <FeedWrite to="/petpostWrite">새 글쓰기</FeedWrite>
-                </FeedBoxContainer>
+const Petpost = () => {
+    const { search } = useLocation();
+    const cur = new URLSearchParams(search).get('category') || 'GeneralPost';
+    const title = cur === 'InfoPost' ? '정보게시판' : '자유게시판'
+    return (
+        <CommunityContainer>
+            <RecommendWalkMate/>
+            <MainContainer>
+                <CategroyContainer>
+                    {/* <CategroyP to="/petpost?category=GeneralPost">자유게시판</CategroyP>
+                    <CategroyP to="/petpost?category=InfoPost">정보게시판</CategroyP> */}
+                </CategroyContainer>
+                <PetPhotoContainer>
+                    <FeedBoxContainer>
+                        <FeedBoxTitle>{title}</FeedBoxTitle>
+                        <FeedWrite to="/petpostWrite">새 글쓰기</FeedWrite>
+                    </FeedBoxContainer>
 
-                <Card/>
-            </PetPhotoContainer>
+                    <Card/>
+                </PetPhotoContainer>
 
-        </MainContainer>
-    </CommunityContainer>
-  )
+            </MainContainer>
+        </CommunityContainer>
+    )
 }
 
-export default PetPhoto
+export default Petpost
