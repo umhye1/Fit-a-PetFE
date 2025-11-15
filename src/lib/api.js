@@ -377,7 +377,7 @@ export const getMyIdentityFromToken = () => {
 
   const nickname = p.nickname ?? p.nick ?? p.userNickname ??
     p.memberNickname ?? p.name ?? p.username ?? null;
-    
+
   const email = p.email ?? p.user_email ?? p.userEmail ??
     p.sub ?? p.userName ?? null;
 
@@ -586,20 +586,29 @@ export const deletePetPost = async (id) =>
   api.delete(`/petposts/${id}`).then(r => r.data);
 
 // === 댓글 저장 ===
-export const createComment = async (postId, text) => {
-  const { data } = await api.post(`/api/posts/${postId}/comments`, { comment: text });
+export const createComment = async (postId, payload) => {
+  // payload: { comment: '내용' }
+  const { data } = await api.post(`/api/posts/${postId}/comments`, payload);
   return data?.data ?? data; // { commentId, comment, lastModified }
 };
 
-// === 댓글 수정 : 작성자가 같으면 수정 ===
-export const updateComment = async (postId, commentId, text) => {
-  const { data } = await api.put(`/api/posts/${postId}/comments/${commentId}`, { comment: text });
+// === 댓글 수정 ===
+export const updateComment = async (postId, commentId, payload) => {
+  // payload: { comment: '내용' }
+  const { data } = await api.put(`/api/posts/${postId}/comments/${commentId}`, payload);
   return data?.data ?? data; // { commentId, comment, lastModified }
 };
+
 
 // === 댓글 삭제 : 작성자가 같으면 삭제 ===
 export const deleteComment = async (commentId) => {
   // 백엔드는 ResponseEntity<String> 반환
   const { data } = await api.delete(`/api/comments/${commentId}`);
   return data; // "댓글 삭제 성공" 등
+};
+
+// === 댓글 조회 ===
+export const getComments = async (postId) => {
+  const res = await api.get(`/api/posts/${postId}/comments`);
+  return res.data.data; // List<CommentInfo>
 };

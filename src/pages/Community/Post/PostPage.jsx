@@ -1,7 +1,7 @@
 import React,{useState, useEffect} from 'react'
 import styled from "styled-components";
 import { useParams, useNavigate } from "react-router-dom";
-import { getPost, createComment, updateComment, deleteComment } from "../../../lib/api";
+import { getPost, createComment, updateComment, deleteComment, getComments} from "../../../lib/api";
 import { getMyIdentityFromToken } from '../../../lib/api';
 import footPrint from '../../../assets/images/footprint.png';
 
@@ -127,7 +127,7 @@ const CommentContainer = styled.div`
   gap: 0.6vw;
 `;
 
-const CommnetBox = styled.div`
+const CommentBox = styled.div`
   width: 100%;
   height: auto;
   display: flex;
@@ -164,34 +164,63 @@ const CommentWriteBox = styled.input`
 `;
 
 const CommentButton = styled.button`
-  margin: 0.6vw;
+  margin: 0.5vw;
   border-radius: 1.3889vw;
   text-decoration: none;
   border: 0.1vw solid #99CC31; 
   background-color: #D9EDAF;
   color: #2E2923;
-  font-size: 0.8vw;
+  font-size: 0.9vw;          /* 0.8 → 0.9 */
   font-weight: 600;
-  padding: 0.4vw 1vw;
+  padding: 0.6vw 1.2vw;      /* 패딩 늘려서 버튼 자체를 더 큼직하게 */
+  min-width: 4.5vw;          /* 최소 가로 폭 확보 */
   cursor: pointer;
   &:hover,&:active { border: 0.1vw solid #99CC31; }
 `;
+
+
+const CommentActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.6vw;
+  min-width: 8vw;      /* ▶ 수정/삭제가 눌러보이게 영역 확보 */
+`;
+
 
 const UserIcon = styled.img`
   width:2vw;
   margin:0.5vw;
 `;
 
+
 function fmtDate(d) {
   if (!d) return '';
+
   try {
+    // 이미 Date 객체면 그대로 로컬(KST)로
+    if (d instanceof Date) {
+      return d.toLocaleString('ko-KR');
+    }
+
     const dt = new Date(d);
     if (isNaN(dt.getTime())) return String(d);
-    return dt.toLocaleString();
+    return dt.toLocaleString('ko-KR');
   } catch {
     return String(d);
   }
 }
+
+// 서버에서 온 시간(UTC처럼 9시간 느린 값)을 KST로 보정
+function add9Hours(d) {
+  if (!d) return null;
+  const dt = new Date(d);
+  if (isNaN(dt.getTime())) return d; 
+  dt.setHours(dt.getHours() + 9);    // 9시간 전으로 출력돼서 저렇게 바꿈
+  return dt;                        
+}
+
+
 
 // 분 단위로 자동 갱신되는 현재시간 문자열
 function useNowString() {
@@ -216,7 +245,7 @@ function useMyDisplayName() {
     return String(me.preferred_username).trim();
   }
 
-  return '나';
+  return '익명';
 }
 
 const PostPage = () => {
@@ -268,23 +297,56 @@ const PostPage = () => {
     return () => { mounted = false; };
   }, [id, navigate]);
 
+  // 댓글 목록 불러오기
+  useEffect(() => {
+    if (!id) return;
+
+    let mounted = true;
+
+    (async () => {
+      try {
+        const res = await getComments(id);
+        const list = res?.data ?? res ?? []; // CommonResponse 고려
+
+        const mapped = list.map((c) => ({
+          id:   c.commentId,
+          text: c.comment,
+          time: add9Hours(c.lastModified),
+          user: '익명',
+        }));
+
+        if (mounted) setComments(mapped);
+      } catch (e) {
+        console.error('[GET COMMENTS FAIL]', e);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [id]);
+
+
   // 댓글 작성
   const handleAddComment = async () => {
     const text = commentInput.trim();
     if (!text) return;
 
     try {
-      const saved = await createComment(id, text); // {commentId, comment, lastModified}
-      setComments(prev => ([
-        ...prev,
-        {
-          id:   saved.commentId,
-          text: saved.comment,
-          time: saved.lastModified, // 서버가 준 시간
-          user: myName,             // 표시용 닉네임
-        },
-      ]));
+      await createComment(id, { comment: text });
+
+      // 입력창 비우기
       setCommentInput('');
+
+      const res = await getComments(id);
+      const list = res?.data ?? res ?? [];
+      const mapped = list.map((c) => ({
+        id:   c.commentId,
+        text: c.comment,
+        time: add9Hours(c.lastModified),
+        user: '익명',
+      }));
+      setComments(mapped);
     } catch (e) {
       const status = e?.response?.status;
       if (status === 401) {
@@ -294,6 +356,7 @@ const PostPage = () => {
       }
       window.alert(e?.response?.data?.message || e.message || '댓글 등록 중 오류가 발생했습니다.');
     }
+      
   };
 
   // 댓글 수정/삭제
@@ -311,14 +374,19 @@ const PostPage = () => {
     const text = editingText.trim();
     if (!text) return;
     try {
-      const saved = await updateComment(id, commentId, text);
-      setComments(prev =>
-        prev.map(c => c.id === commentId
-          ? { ...c, text: saved.comment, time: saved.lastModified }
-          : c
-        )
-      );
+      await updateComment(id, commentId, { comment: text });
+      const res = await getComments(id);
+      const list = res?.data ?? res ?? [];
+      const mapped = list.map((c) => ({
+        id:   c.commentId,
+        text: c.comment,
+        time: add9Hours(c.lastModified),
+        user: '익명',
+      }));
+      setComments(mapped);
+
       cancelEdit();
+
     } catch (e) {
       const status = e?.response?.status;
       if (status === 401) {
@@ -330,21 +398,31 @@ const PostPage = () => {
     }
   };
 
-  const removeComment = async (commentId) => {
-    if (!window.confirm('댓글을 삭제할까요?')) return;
-    try {
-      await deleteComment(commentId);
-      setComments(prev => prev.filter(c => c.id !== commentId));
-    } catch (e) {
-      const status = e?.response?.status;
-      if (status === 401) {
-        window.alert('로그인이 필요합니다.');
-        navigate('/login', { state: { from: `/post/${id}` } });
-        return;
+    const removeComment = async (commentId) => {
+      if (!window.confirm('댓글을 삭제할까요?')) return;
+      try {
+        await deleteComment(commentId);
+
+        const res = await getComments(id);
+        const list = res?.data ?? res ?? [];
+        const mapped = list.map((c) => ({
+          id:   c.commentId,
+          text: c.comment,
+          time: add9Hours(c.lastModified),
+          user: '익명',
+        }));
+        setComments(mapped);
+      } catch (e) {
+        const status = e?.response?.status;
+        if (status === 401) {
+          window.alert('로그인이 필요합니다.');
+          navigate('/login', { state: { from: `/post/${id}` } });
+          return;
+        }
+        window.alert(e?.response?.data?.message || e.message || '댓글 삭제 중 오류가 발생했습니다.');
       }
-      window.alert(e?.response?.data?.message || e.message || '댓글 삭제 중 오류가 발생했습니다.');
-    }
   };
+
 
   if (loading) return <div style={{ padding: '2vw',  fontSize: '0.8vw' }}>불러오는 중…</div>;
   if (!row)    return <div style={{ padding: '2vw', fontSize: '0.8vw' }}>게시글을 찾을 수 없습니다.</div>;
@@ -388,23 +466,27 @@ const PostPage = () => {
 
               {editingId === c.id ? (
                 <div style={{ display:'flex', flex:1, alignItems:'center', gap:'0.6vw' }}>
-                  <CommnetBox as="div" style={{ borderLeft:'none', paddingLeft:0, flex:1 }}>
+                  <CommentBox as="div" style={{ borderLeft:'none', paddingLeft:0, flex:1 }}>
                     <input
                       value={editingText}
                       onChange={(e)=>setEditingText(e.target.value)}
                       style={{ width:'100%', border:'0.06vw solid #99CC31', padding:'0.4vw 0.6vw', borderRadius:'0.4vw' }}
                       placeholder="댓글을 수정하세요"
                     />
-                  </CommnetBox>
-                  <CommentButton onClick={() => submitEdit(c.id)}>저장</CommentButton>
-                  <CommentButton onClick={cancelEdit}>취소</CommentButton>
+                  </CommentBox>
+                  <CommentActions>
+                    <CommentButton onClick={() => submitEdit(c.id)}>저장</CommentButton>
+                    <CommentButton onClick={cancelEdit}>취소</CommentButton>
+                  </CommentActions>
                 </div>
               ) : (
                 <>
-                  <CommnetBox>{c.text}</CommnetBox>
+                  <CommentBox>{c.text}</CommentBox>
                   <div style={{ display:'flex', gap:'0.4vw' }}>
-                    <CommentButton onClick={() => startEdit(c)}>수정</CommentButton>
-                    <CommentButton onClick={() => removeComment(c.id)}>삭제</CommentButton>
+                    <CommentActions>
+                      <CommentButton onClick={() => startEdit(c)}>수정</CommentButton>
+                      <CommentButton onClick={() => removeComment(c.id)}>삭제</CommentButton>
+                    </CommentActions>
                   </div>
                 </>
               )}
