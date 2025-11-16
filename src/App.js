@@ -11,7 +11,7 @@ import PostPage from './pages/Community/Post/PostPage';
 
 import PetPost from './pages/Community/PetPost/PetPost';
 import PetpostPage from './pages/Community/PetPost/PetpostPage';
-import PetpostWrite from './pages/Community/PetPost/PetpostWrite';
+import PetpostWrite from './pages/Community/PetPost/petpostWrite';
 import SearchMate from './pages/Community/PetPost/SearchMate';
 
 import MapPage from './pages/Map/MapPage';
