@@ -1,8 +1,15 @@
 import axios from 'axios';
 
 /* ======================= BaseURL ======================= */
-export const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || 'http://3.37.117.222:8080';
+
+const isProd = process.env.NODE_ENV === 'production';
+
+const DEV_BASE = process.env.REACT_APP_API_BASE_URL || 'http://3.37.117.222:8080';
+
+export const API_BASE_URL = isProd ? '' : DEV_BASE;
+
+console.log('[API] base =', API_BASE_URL);  // 배포에서 '' 찍히면 성공
+
 
 
 const PETS_BASE = '/api/mypage/pet';
