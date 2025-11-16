@@ -1,13 +1,13 @@
+// TrailCard/MonthlyTrailCard.jsx
 import React, { useMemo, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { UI } from '../../../../styles/uiToken';
-import DailyTrailCard from './DailyTrailCard';
 
 const TrailCardContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center; /* align-item -> align-items */
+  align-items: center; 
   gap: 1.2vw;
 `;
 
@@ -48,7 +48,6 @@ const CardContainer = styled.div`
   gap: 0.7vw;
   padding: 0.5vw 0.8vw 1vw 0.8vw;
 
-  /* 고정 높이 + 스크롤 */
   max-height: 14.5vw;
   overflow-y: auto;
 
@@ -64,7 +63,6 @@ const CardBox = styled.button`
   display: flex;
   flex-direction: row;
   align-items: center;
-  // background: ${({ $active }) => ($active ? UI.bgAlt : UI.bg)};
   background: ${UI.bg};
   border: 0.1px solid ${({ $active }) => ($active ? UI.primary : 'transparent')};
   border-radius: 8px;
@@ -98,58 +96,51 @@ const CardBoxP2 = styled.div`
   flex: 1;
 `;
 
-/**
- * TrailCard
- * - records: [{ trailId, date(YYYY-MM-DD), duration, ... }, ...]
- * - selectedMonth: 'YYYY-MM'
- * - selectedDate: 'YYYY-MM-DD' (캘린더 선택값)
- * - onSelectRecord?: (record) => void
- * - fetcher?: DailyTrailCard에 주입할 상세 조회 함수(선택)
- */
-export default function TrailCard({
-  selectedMonth,
+export default function MonthlyTrailCard({
+  selectedMonth,   // 지금은 안 써도 됨 (API에서 이미 월별 필터)
   selectedDate,
   records = [],
   onSelectRecord,
-  fetcher,
-  renderDetail = true
 }) {
+  // ✅ API에서 이미 해당 month만 가져오므로, 여기서는 단순 sort만
   const monthlyRecords = useMemo(() => {
-    if (!selectedMonth) return [];
-    // (선택) 같은 날짜/시간 중복이 있다면 key 충돌 방지용으로 유니크화
-    const filtered = records
-      .filter(r => (r.date || '').startsWith(selectedMonth))
-      .sort((a, b) => (a.date > b.date ? -1 : 1));
-    return filtered;
-  }, [records, selectedMonth]);
+    if (!records.length) return [];
+    return [...records].sort((a, b) =>
+      (a.walkDate || '').localeCompare(b.walkDate || '')
+    );
+  }, [records]);
 
   const [selectedTrailId, setSelectedTrailId] = useState(null);
   const [fallbackRecord, setFallbackRecord] = useState(null);
 
+  // 날짜 선택되면 해당 날짜의 기록 활성화
   useEffect(() => {
     if (!selectedDate) return;
-    const match = records.find(r => r.date === selectedDate);
+    const match = records.find(r => r.walkDate === selectedDate);
     if (match) {
-      setSelectedTrailId(match.trailId || match.recordId);
+      setSelectedTrailId(match.recordId);
       setFallbackRecord(match);
     }
   }, [selectedDate, records]);
 
+  // 월 변경 후 첫 렌더링 시 첫 번째 기록 기본 선택
   useEffect(() => {
-    if (monthlyRecords.length && !selectedDate) {
+    if (monthlyRecords.length) {
       const first = monthlyRecords[0];
-      setSelectedTrailId(first.trailId || first.recordId);
+      setSelectedTrailId(first.recordId);
       setFallbackRecord(first);
-    } else if (!monthlyRecords.length) {
+      // 부모에서 날짜도 맞춰주고 싶으면:
+      // onSelectRecord?.(first);
+    } else {
       setSelectedTrailId(null);
       setFallbackRecord(null);
     }
-  }, [monthlyRecords, selectedDate]);
+  }, [monthlyRecords]);
 
   const handleClickRecord = (r) => {
-    setSelectedTrailId(r.trailId || r.recordId);
+    setSelectedTrailId(r.recordId);
     setFallbackRecord(r);
-    onSelectRecord?.(r);
+    onSelectRecord?.(r);  // MonthWalkRecord 쪽에서 selectedDate = r.walkDate로 맞추는 용도
   };
 
   return (
@@ -159,22 +150,30 @@ export default function TrailCard({
           <TitleContainer><CardTitle>월 산책 기록</CardTitle></TitleContainer>
 
           <CardContainer aria-label="월별 산책 기록 목록">
-            {/* ✅ 상단의 '선택한 날짜' 단일 아이템 렌더링 블록 제거 */}
             {monthlyRecords.length > 0 ? (
               monthlyRecords.map((r) => {
-                const key = r.trailId || r.recordId || `${r.date}-${r.duration}`;
-                const active = selectedTrailId === (r.trailId || r.recordId);
+                const active = selectedTrailId === r.recordId;
+                const dateLabel =
+                  r.walkDate || r.date || '-';
+
+                const durationLabel =
+                  r.formattedDuration ||
+                  r.duration ||
+                  r.record ||
+                  '-';
                 return (
                   <CardBox
-                    key={key}
+                    key={r.recordId}
                     type="button"
                     $active={active}
                     onClick={() => handleClickRecord(r)}
                     aria-selected={active}
                     title="상세 보기"
                   >
-                    <CardBoxP>{r.date}</CardBoxP>
-                    <CardBoxP2>| 산책 시간: {r.duration}</CardBoxP2>
+                    <CardBoxP>{dateLabel}</CardBoxP>
+                    <CardBoxP2>
+                      | 산책 시간 : {durationLabel}
+                    </CardBoxP2>
                   </CardBox>
                 );
               })
@@ -186,14 +185,6 @@ export default function TrailCard({
           </CardContainer>
         </TrailContainer>
       </Container>
-
-      {renderDetail && (
-        <DailyTrailCard
-          trailId={selectedTrailId}
-          fallbackRecord={fallbackRecord}
-          fetcher={fetcher}  /* 없으면 아래 B안 적용으로 네트워크 생략 */
-        />
-      )}
     </TrailCardContainer>
   );
 }

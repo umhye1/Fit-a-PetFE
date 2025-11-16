@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { UI } from '../../../styles/uiToken';
+import { createWalkRecord } from '../../../lib/api';
 
 /* ===== Layout ===== */
 const Wrap = styled.div`
@@ -253,22 +254,28 @@ const StopwatchBox = () => {
 
   const onSave = async () => {
     if (!startTime || !endTime) return;
+
     const payload = {
-      walkDate: startTime.toISOString().split('T')[0],
-      walkStart: startTime.toTimeString().split(' ')[0],
-      walkEnd: endTime.toTimeString().split(' ')[0],
-      record: fmt(elapsedTime),
+      walkDate: startTime.toISOString().split('T')[0],         // YYYY-MM-DD
+      walkStart: startTime.toTimeString().split(' ')[0],       // HH:mm:ss
+      walkEnd: endTime.toTimeString().split(' ')[0],   
+      distance: null,                              // 나중에 카카오맵 거리 계산 붙이면 채우면 됨
+      petId: null,                                 // 펫 선택 연동되면 여기 값 채우기
+      address: null,                               // 주소 값 있으면 채워 넣기
       memo,
-      rating: Number(rating),
+      rating: Number(rating) || null,
     };
+
     console.log('save:', payload);
-    await fetch('/api/walk-record/save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    alert('산책 기록 저장 완료!');
+    try {
+      await createWalkRecord(payload);    
+      alert('산책 기록 저장 완료!');
+    } catch (e) {
+      console.error(e);
+      alert(e?.response?.data?.message || e.message || '산책 기록 저장 중 오류가 발생했습니다.');
+    }
   };
+
 
   const canSave = !!startTime && !!endTime;
 

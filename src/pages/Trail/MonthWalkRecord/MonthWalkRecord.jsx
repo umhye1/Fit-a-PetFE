@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import styled from 'styled-components';
@@ -6,6 +6,7 @@ import { UI } from '../../../styles/uiToken';
 import MonthlyTrailCard from './TrailCard/MonthlyTrailCard';
 import DailyTrailCard from './TrailCard/DailyTrailCard';
 import footPrint from '../../../assets/images/footprint.png';
+import { getWalkRecordsMonthly, getWalkRecordDetail } from '../../../lib/api';
 
 /* 페이지 컨테이너 & 래퍼 */
 const PageContainer = styled.div`
@@ -18,28 +19,29 @@ const Wrapper = styled.div`
   width: calc(28vw * 2 + 2vw);
 `;
 
-/* 상단 2열 + 하단 1열 그리드 */
 const Grid = styled.div`
   display: grid;
+  /* 1행: 캘린더 / 리스트, 2행: 상세(2칸 전체) */
   grid-template-areas:
     "calendar list"
     "detail   detail";
   grid-template-columns: 28vw 28vw;
   grid-auto-rows: auto;
-  gap: 2vw;
+  column-gap: 2vw;
+  row-gap: 2vw;
   width: 100%;
   box-sizing: border-box;
 
-  @media (max-width: 1200px) {
+  /* ✅ 진짜 모바일 사이즈에서만 세로로 바꾸고 싶으면 600px 정도로 */
+  @media (max-width: 600px) {
     grid-template-areas:
       "calendar"
       "list"
       "detail";
     grid-template-columns: 1fr;
-    gap: 4vw;
-    width: 100%;
   }
 `;
+
 
 const CalendarArea = styled.div`
   grid-area: calendar;
@@ -111,38 +113,48 @@ export default function MonthWalkRecord() {
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedDate, setSelectedDate] = useState(null);
 
+  const [records, setRecords] = useState([]);          
+  const [recordsLoading, setRecordsLoading] = useState(false);
+  const [recordsError, setRecordsError] = useState(null);
+
   const [selectedTrailId, setSelectedTrailId] = useState(null);
   const [fallbackRecord, setFallbackRecord] = useState(null);
 
-  // 데모 데이터 (trailId 필수)
-  const records = [
-    { trailId: 101, date: '2025-04-01', duration: '00:11:00' },
-    { trailId: 102, date: '2025-04-12', duration: '00:12:00' },
-    { trailId: 201, date: '2025-05-03', duration: '00:13:00' },
-    { trailId: 202, date: '2025-05-01', duration: '00:18:00' },
-    { trailId: 203, date: '2025-05-04', duration: '01:11:00' },
-    { trailId: 204, date: '2025-05-29', duration: '00:39:00' },
-  ];
+  useEffect(() => {
+    if (!selectedMonth) return;
 
-  /* ✅ 목 fetcher: BE 없이 상세 응답 모킹 */
-  const mockFetcher = useCallback(async (id) => {
-    // 네트워크 지연 흉내 (선택)
-    await new Promise(res => setTimeout(res, 300));
-    const base = records.find(r => r.trailId === id);
-    return {
-      recordId: id,
-      walkDate: base?.date ?? '2025-05-01',
-      walkStart: '11:11',
-      walkEnd: '12:01',
-      record: base?.duration ?? '00:50:00',
-      distance: 3.4,
-      address: '서울시 마포구 어딘가 123',
-      memo: '테스트 메모(목 데이터)',
-      rating: 5,
-    };
-  }, [records]);
+    const [year, month] = selectedMonth.split('-');
+    if (!year || !month) return;
 
-  /* 캘린더 월/일 클릭 */
+    (async () => {
+      try {
+        setRecordsLoading(true);
+        setRecordsError(null);
+
+        const list = await getWalkRecordsMonthly({ year, month });
+        setRecords(list);
+
+        // 월에 기록이 있으면 첫 번째 기록을 기본 선택
+        if (list.length > 0) {
+          setSelectedTrailId(list[0].recordId);
+          setFallbackRecord(list[0]);
+        } else {
+          setSelectedTrailId(null);
+          setFallbackRecord(null);
+        }
+
+      } catch (e) {
+        console.error('[GET MONTHLY WALK RECORDS FAIL]', e);
+        setRecords([]);
+        setRecordsError(e?.response?.data?.message || e.message || '기록 조회 중 오류');
+      } finally {
+        setRecordsLoading(false);
+      }
+    })();
+  }, [selectedMonth]);
+
+
+
   const handleClickMonth = useCallback((v) => {
     const y = v.getFullYear();
     const m = String(v.getMonth() + 1).padStart(2, '0');
@@ -153,7 +165,6 @@ export default function MonthWalkRecord() {
   }, []);
 
   const handleClickDay = useCallback((v) => {
-    // 로컬기준 YYYY-MM-DD (toISOString은 UTC라 날짜 밀릴 수 있음)
     const clicked = [
       v.getFullYear(),
       String(v.getMonth() + 1).padStart(2, '0'),
@@ -161,9 +172,10 @@ export default function MonthWalkRecord() {
     ].join('-');
 
     setSelectedDate(prev => (prev === clicked ? null : clicked));
-    const match = records.find(r => r.date === clicked);
+
+    const match = records.find(r => r.walkDate === clicked);
     if (match) {
-      setSelectedTrailId(match.trailId);
+      setSelectedTrailId(match.recordId);
       setFallbackRecord(match);
     } else {
       setSelectedTrailId(null);
@@ -171,12 +183,27 @@ export default function MonthWalkRecord() {
     }
   }, [records]);
 
-  /* 월별 카드에서 클릭 시 */
-  const handleSelectRecord = useCallback((r) => {
-    setSelectedTrailId(r.trailId || r.recordId);
-    setFallbackRecord(r);
-    setSelectedDate(r.date); // 캘린더 동기화 원치 않으면 제거
+  const handleDeletedRecord = useCallback((deletedId) => {
+    setRecords((prev) => {
+      const next = prev.filter((r) => r.recordId !== deletedId);
+
+      if (next.length === 0) {
+        // 더 이상 기록이 없으면 선택 전부 초기화
+        setSelectedTrailId(null);
+        setFallbackRecord(null);
+        setSelectedDate(null);
+      } else {
+        // 남아 있는 기록 중 첫 번째를 기본 선택
+        const first = next[0];
+        setSelectedTrailId(first.recordId);
+        setFallbackRecord(first);
+        setSelectedDate(first.walkDate || first.date || null);
+      }
+
+      return next;
+    });
   }, []);
+
 
   return (
     <PageContainer>
@@ -192,8 +219,13 @@ export default function MonthWalkRecord() {
               onClickDay={handleClickDay}
               tileContent={({ date, view }) => {
                 if (view === 'month') {
-                  const d = date.toISOString().split('T')[0];
-                  if (records.some(r => r.date === d)) {
+                  const d = [
+                    date.getFullYear(),
+                    String(date.getMonth() + 1).padStart(2, '0'),
+                    String(date.getDate()).padStart(2, '0'),
+                  ].join('-');
+
+                  if (records.some(r => r.walkDate === d)) {
                     return (
                       <img
                         src={footPrint}
@@ -209,21 +241,34 @@ export default function MonthWalkRecord() {
           </CalendarArea>
 
           <ListArea>
+            {recordsLoading && (
+              <div style={{ fontSize: '0.8vw', marginBottom: '0.5vw' }}>
+                기록 불러오는 중...
+              </div>
+            )}
+            {recordsError && (
+              <div style={{ fontSize: '0.8vw', color: 'red', marginBottom: '0.5vw' }}>
+                {recordsError}
+              </div>
+            )}
             <MonthlyTrailCard
               selectedMonth={selectedMonth}
               selectedDate={selectedDate}
               records={records}
-              onSelectRecord={handleSelectRecord}
-              renderDetail={false}   // 상세는 아래에서 렌더
+              onSelectRecord={(r) => {
+                setSelectedTrailId(r.recordId);
+                setFallbackRecord(r);
+                setSelectedDate(r.walkDate);
+              }}
             />
           </ListArea>
 
           <DetailArea>
-            {/* ✅ 목 fetcher 연결 */}
             <DailyTrailCard
               trailId={selectedTrailId}
               fallbackRecord={fallbackRecord}
-              fetcher={mockFetcher}
+              fetcher={getWalkRecordDetail}
+              onDeleted={handleDeletedRecord}
             />
           </DetailArea>
         </Grid>

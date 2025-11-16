@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { UI } from '../../../../styles/uiToken';
+import { getWalkRecordDetail, updateWalkRecord, deleteWalkRecord } from '../../../../lib/api';
 
 const Panel = styled.div`
   width: 100%;                 
@@ -16,20 +17,19 @@ const Panel = styled.div`
 const Row = styled.div`
   display: flex;
   color: ${UI.chipText}; 
-  font-size: 0.9vw;
+  font-size: 1.2vw;
   font-weight: 700;             
   margin-bottom: 0.6vw;
 
   & > span:first-child {
     width: 10vw;               
-    font-weight: 700;
+    font-weight: 800;
     color: ${UI.text};
-    font-size: 1vw;
-    margin-left: 1vw;
+    font-size: 1.2vw;
   }
 
   @media (max-width: 1200px) {
-    font-size: 1.6vw;
+    font-size: 1.2vw;
     & > span:first-child { width: 24vw; }
   }
 `;
@@ -42,14 +42,16 @@ const TitleContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between; 
     margin: 1vw;
 `;
 
 
 const Title = styled.div`
-  font-size: 1.1vw;            /* 0.95vw -> 1.1vw */
+  font-size: 1.1vw;          
   font-weight: 800;
   color: ${UI.text};
+  margin-bottom: 1vw;
 
   @media (max-width: 1200px) {
     font-size: 1.8vw;
@@ -57,11 +59,10 @@ const Title = styled.div`
 `;
 
 const ButtonContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-left: 40vw;
-    gap: 0.5vw;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5vw;
 `;
 
 const EditButton = styled.button`
@@ -69,7 +70,7 @@ const EditButton = styled.button`
     border-radius: ${UI.radiusLg};
     background: ${UI.lightgreenButton};
     color: ${UI.text};
-    font-size: 0.95vw;            /* 0.95vw -> 1.1vw */
+    font-size: 0.95vw;           
     font-weight: 600;
 `
 const DeleteButton = styled.button`
@@ -77,7 +78,7 @@ const DeleteButton = styled.button`
     border-radius: ${UI.radiusLg};
     background: ${UI.lightgreenButton};
     color: ${UI.text};
-    font-size: 0.95vw;            /* 0.95vw -> 1.1vw */
+    font-size: 0.95vw;            
     font-weight: 600;
 `;
 
@@ -96,14 +97,19 @@ const DetailContainer = styled.div`
  *        (trailId: string|number, token?: string) => Promise<any>
  *        미전달 시 기본 fetch(`/api/trails/${trailId}`)
  */
-export default function DailyTrailCard({ trailId, fallbackRecord, fetcher }) {
+export default function DailyTrailCard({ trailId, fallbackRecord, fetcher,onDeleted, onUpdated }) {
   const [loading, setLoading] = useState(false);
   const [detail, setDetail] = useState(null);
   const [error, setError] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editMemo, setEditMemo] = useState('');
+  const [editRating, setEditRating] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const defaultFetcher = useCallback(async (id) => {
     const token = localStorage.getItem('accessToken');
-    const res = await fetch(`/api/trails/${id}`, {
+    const res = await fetch(`/trails/${id}`, {
       headers: {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {})
@@ -112,8 +118,9 @@ export default function DailyTrailCard({ trailId, fallbackRecord, fetcher }) {
     });
     if (!res.ok) throw new Error(`상세 요청 실패: ${res.status}`);
     const data = await res.json();
-    return data?.data ?? data; // 프로젝트 응답 포맷에 맞게 조정
+    return data?.data ?? data;
   }, []);
+
 
   const run = useCallback(async () => {
     if (!trailId) {
@@ -126,6 +133,11 @@ export default function DailyTrailCard({ trailId, fallbackRecord, fetcher }) {
       setError(null);
       const data = await (fetcher || defaultFetcher)(trailId);
       setDetail(data);
+
+      setEditMemo(data.memo || '');
+      setEditRating(
+        data.rating === null || data.rating === undefined ? '' : String(data.rating)
+      );
     } catch (e) {
       setError(e.message);
       setDetail(null);
@@ -140,13 +152,85 @@ export default function DailyTrailCard({ trailId, fallbackRecord, fetcher }) {
 
   const showing = detail ?? fallbackRecord ?? null;
 
+  const handleEditClick = () => {
+    if (!showing) return;
+    setIsEditing(true);
+    setEditMemo(showing.memo || '');
+    setEditRating(
+      showing.rating === null || showing.rating === undefined
+        ? ''
+        : String(showing.rating)
+    );
+  };
+
+  const handleSave = async () => {
+    const id = trailId || showing?.recordId;
+    if (!id) return;
+
+    try {
+      setSaving(true);
+      const payload = {
+        memo: editMemo,
+        rating:
+          editRating === '' || editRating === null
+            ? null
+            : Number(editRating),
+      };
+      const updated = await updateWalkRecord(id, payload);
+      setDetail(updated);          // 상세 화면 갱신
+      setIsEditing(false);
+      onUpdated?.(updated);        // 부모가 있으면 records 동기화
+      alert('수정이 저장되었습니다.');
+    } catch (e) {
+      console.error(e);
+      alert(e.message || '수정 중 오류가 발생했습니다.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+   const handleDelete = async () => {
+    const id = trailId || showing?.recordId;
+    if (!id) return;
+    if (!window.confirm('이 산책 기록을 삭제하시겠습니까?')) return;
+
+    try {
+      setDeleting(true);
+      await deleteWalkRecord(id);
+
+      setDetail(null);
+      setIsEditing(false);
+      
+      onDeleted?.(id);   // 부모에서 목록에서도 제거 가능
+      alert('삭제되었습니다.');
+    } catch (e) {
+      console.error(e);
+      alert(e.message || '삭제 중 오류가 발생했습니다.');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+
   return (
     <Panel>
       <TitleContainer>
         <Title>선택한 날짜 상세</Title>
         <ButtonContainer>
-            <EditButton>수정</EditButton>
-            <DeleteButton>삭제</DeleteButton>
+            <EditButton
+              type="button"
+              onClick={handleEditClick}
+              disabled={!showing || loading || deleting}
+            >
+              {isEditing ? '수정 중' : '수정'}
+            </EditButton>
+            <DeleteButton
+              type="button"
+              onClick={handleDelete}
+              disabled={!showing || loading || saving}
+            >
+              삭제
+            </DeleteButton>
         </ButtonContainer>
       </TitleContainer>
 
@@ -162,14 +246,99 @@ export default function DailyTrailCard({ trailId, fallbackRecord, fetcher }) {
           <Row><span>날짜</span><div>{showing.walkDate || showing.date || '-'}</div></Row>
           <Row><span>시작</span><div>{showing.walkStart || '-'}</div></Row>
           <Row><span>종료</span><div>{showing.walkEnd || '-'}</div></Row>
-          <Row><span>소요시간</span><div>{showing.record || showing.duration || '-'}</div></Row>
+          <Row>
+            <span>소요시간</span>
+            <div>{showing.formattedDuration || showing.record || showing.duration || '-'}</div>
+          </Row>
           <Row><span>거리(km)</span><div>{showing.distance ?? '-'}</div></Row>
-          <Row><span>주소</span><div>{showing.address || '-'}</div></Row>
-          <Row><span>메모</span><div>{showing.memo || '-'}</div></Row>
-          <Row><span>평점</span><div>{showing.rating ?? '-'}</div></Row>
-        </>
-      )}
+          {isEditing ? (
+              <>
+                <Row>
+                  <span>메모</span>
+                  <div style={{ flex: 1 }}>
+                    <textarea
+                      value={editMemo}
+                      onChange={(e) => setEditMemo(e.target.value)}
+                      style={{
+                        width: '100%',
+                        minHeight: '4vw',
+                        fontSize: '0.9vw',
+                        padding: '0.4vw 0.6vw',
+                        borderRadius: '0.6vw',
+                        border: `1px solid ${UI.line}`,
+                        resize: 'vertical',
+                      }}
+                    />
+                  </div>
+                </Row>
+                <Row>
+                  <span>평점</span>
+                  <div>
+                    <input
+                      type="number"
+                      min="1"
+                      max="5"
+                      value={editRating}
+                      onChange={(e) => setEditRating(e.target.value)}
+                      style={{
+                        width: '4vw',
+                        fontSize: '0.9vw',
+                        padding: '0.3vw 0.4vw',
+                        borderRadius: '0.6vw',
+                        border: `1px solid ${UI.line}`,
+                      }}
+                    />
+                  </div>
+                </Row>
+                <Row>
+                  <span></span>
+                  <div>
+                    <button
+                      type="button"
+                      onClick={handleSave}
+                      disabled={saving || deleting}
+                      style={{
+                        marginRight: '0.5vw',
+                        padding: '0.4vw 0.9vw',
+                        borderRadius: '0.6vw',
+                        border: 'none',
+                        background: UI.primary,
+                        color: '#fff',
+                        fontWeight: 700,
+                        fontSize: '0.9vw',
+                      }}
+                    >
+                      저장
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(false)}
+                      disabled={saving || deleting}
+                      style={{
+                        padding: '0.4vw 0.9vw',
+                        borderRadius: '0.6vw',
+                        border: `1px solid ${UI.line}`,
+                        background: '#fff',
+                        color: UI.text,
+                        fontWeight: 600,
+                        fontSize: '0.9vw',
+                      }}
+                    >
+                      취소
+                    </button>
+                  </div>
+                </Row>
+              </>
+            ) : (
+              <>
+                <Row><span>메모</span><div>{showing.memo || '-'}</div></Row>
+                <Row><span>평점</span><div>{showing.rating ?? '-'}</div></Row>
+              </>
+            )}
+          </>
+        )}
       </DetailContainer>
     </Panel>
   );
 }
+

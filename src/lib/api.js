@@ -612,3 +612,89 @@ export const getComments = async (postId) => {
   const res = await api.get(`/api/posts/${postId}/comments`);
   return res.data.data; // List<CommentInfo>
 };
+
+// === 산책 기록 저장 ===
+export const createWalkRecord = async (payload) => {
+  const { data } = await api.post('/trails', payload);
+  // CommonResponse<WalkRecordResponse> 라고 가정
+  return data?.data ?? data;
+};
+
+// === 월별 산책 기록 조회 ===
+export const getWalkRecordsMonthly = async ({ year, month }) => {
+  const y = Number(year);
+  const m = Number(month);
+
+  const { data } = await api.get('/trails', {
+    params: {
+      year: y,                 // @RequestParam int year
+      month: m,                // @RequestParam int month
+    },
+  });
+
+  const list = Array.isArray(data?.data)
+    ? data.data
+    : Array.isArray(data)
+    ? data
+    : [];
+
+  return list.map((r) => ({
+    recordId: r.recordId,
+    date: r.walkDate,                 // 'YYYY-MM-DD'
+    duration: r.formattedDuration,    // 'HH:mm:ss'
+    start: r.walkStart,
+    end: r.walkEnd,
+    distance: r.distance,
+    petId: r.petId,
+    address: r.address,
+    rating: r.rating,
+    memo: r.memo,
+    _raw: r,
+  }));
+};
+
+
+// === 산책 기록 단건 상세 조회 ===
+export const getWalkRecordDetail = async (recordId) => {
+  const { data } = await api.get(`/trails/${recordId}`);
+  const d = data?.data ?? data;
+  return {
+    recordId: d.recordId,
+    walkDate: d.walkDate,
+    walkStart: d.walkStart,
+    walkEnd: d.walkEnd,
+    record: d.formattedDuration,
+    distance: d.distance,
+    petId: d.petId,
+    address: d.address,
+    rating: d.rating,
+    memo: d.memo,
+    _raw: d,
+  };
+};
+
+// === 기록 수정 (PUT /trails/{recordId}) ===
+export const updateWalkRecord = async (recordId, { memo, rating }) => {
+  const body = { memo, rating };
+  const { data } = await api.put(`/trails/${recordId}`, body);
+  const d = data?.data ?? data;
+  return {
+    recordId: d.recordId,
+    walkDate: d.walkDate,
+    walkStart: d.walkStart,
+    walkEnd: d.walkEnd,
+    record: d.formattedDuration,
+    distance: d.distance,
+    petId: d.petId,
+    address: d.address,
+    rating: d.rating,
+    memo: d.memo,
+    _raw: d,
+  };
+};
+
+// === 기록 삭제 (DELETE /trails/{recordId}) ===
+export const deleteWalkRecord = async (recordId) => {
+  const { data } = await api.delete(`/trails/${recordId}`);
+  return data; // CommonResponse 그대로 사용
+};
