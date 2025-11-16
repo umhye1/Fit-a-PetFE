@@ -2,15 +2,22 @@ import axios from 'axios';
 
 /* ======================= BaseURL ======================= */
 
-const isProd = process.env.NODE_ENV === 'production';
+const DEV_BASE =
+  process.env.REACT_APP_API_BASE_URL || 'http://3.37.117.222:8080';
 
-const DEV_BASE = process.env.REACT_APP_API_BASE_URL || 'http://3.37.117.222:8080';
+let resolvedBase = DEV_BASE;
 
-export const API_BASE_URL = isProd ? '' : DEV_BASE;
+if (typeof window !== 'undefined') {
+  const isHttps = window.location.protocol === 'https:';
+  const isVercelHost = window.location.hostname.includes('vercel.app');
 
-console.log('[API] base =', API_BASE_URL);  // 배포에서 '' 찍히면 성공
+  if (isHttps && isVercelHost) {
+    resolvedBase = ''; // => https://fitapet-...vercel.app + /api/...
+  }
+}
+export const API_BASE_URL = resolvedBase;
 
-
+console.log('[API] base =', API_BASE_URL);
 
 const PETS_BASE = '/api/mypage/pet';
 console.log('[API] base =', API_BASE_URL);
