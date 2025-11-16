@@ -9,7 +9,7 @@ import Post from './pages/Community/Post/Post';
 import PostWrite from './pages/Community/Post/PostWrite';
 import PostPage from './pages/Community/Post/PostPage';
 
-import PetPost from './pages/Community/PetPost/Petpost';
+import PetPost from './pages/Community/PetPost/PetPost';
 import PetpostPage from './pages/Community/PetPost/PetpostPage';
 import PetpostWrite from './pages/Community/PetPost/PetpostWrite';
 import SearchMate from './pages/Community/PetPost/SearchMate';
@@ -94,4 +94,3 @@ function App() {
 }
 
 export default App;
-
