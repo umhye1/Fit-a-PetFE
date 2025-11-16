@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 /* ======================= BaseURL ======================= */
-// .env에 VITE_API_BASE_URL 넣는다고 가정 (Vite 기준)
 export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'http://3.37.117.222:8080';
+  process.env.REACT_APP_API_BASE_URL || 'http://3.37.117.222:8080';
+
 
 const PETS_BASE = '/api/mypage/pet';
 console.log('[API] base =', API_BASE_URL);
