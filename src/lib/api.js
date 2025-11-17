@@ -2,29 +2,19 @@ import axios from 'axios';
 
 /* ======================= BaseURL ======================= */
 
-// 로컬: 직접 백엔드
+// 로컬에서는 Spring Boot 서버로 직접 호출
 const DEV_BASE =
   process.env.REACT_APP_API_BASE_URL || 'http://3.37.117.222:8080';
 
-// 기본값은 로컬용
-let resolvedBase = DEV_BASE;
-
-// 브라우저 + Vercel 배포 환경이면 프록시 사용
-if (typeof window !== 'undefined') {
-  const isHttps = window.location.protocol === 'https:';
-  const isVercelHost = window.location.hostname.includes('vercel.app');
-
-  if (isHttps && isVercelHost) {
-    // 👇 vercel.json 에 맞춘 프록시 prefix
-    resolvedBase = '/api-proxy';
-  }
-}
-
-export const API_BASE_URL = resolvedBase;
+// 배포(production)에서는 프론트 도메인(=Vercel) 기준으로 '' 사용
+// → axios 요청: /api/..., /posts..., /trails...
+// → vercel.json 리라이트가 백엔드로 프록시
+export const API_BASE_URL =
+  process.env.NODE_ENV === 'production' ? '' : DEV_BASE;
 
 console.log('[API] base =', API_BASE_URL);
 
-
+/* ======================= Axios Instance ======================= */
 
 const PETS_BASE = '/api/mypage/pet';
 console.log('[API] base =', API_BASE_URL);
