@@ -12,9 +12,10 @@ if (typeof window !== 'undefined') {
   const isVercelHost = window.location.hostname.includes('vercel.app');
 
   if (isHttps && isVercelHost) {
-    resolvedBase = ''; // => https://fitapet-...vercel.app + /api/...
+    resolvedBase = '/api';
   }
 }
+
 export const API_BASE_URL = resolvedBase;
 
 console.log('[API] base =', API_BASE_URL);
