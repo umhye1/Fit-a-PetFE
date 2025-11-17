@@ -73,6 +73,20 @@ export const api = axios.create({
 
 /* ---------- Request Interceptor: Bearer ---------- */
 api.interceptors.request.use((config) => {
+  const url = config.url || '';
+
+  // 토큰 안 붙일 경로들
+  const noAuthPaths = [
+    '/api/users/login',
+    '/api/users/signup',
+    '/api/users/email',
+    '/api/users/email/verify',
+  ];
+
+  if (noAuthPaths.some((p) => url.startsWith(p))) {
+    return config;
+  }
+
   const token = tokenStorage.get();
   if (token) {
     config.headers = config.headers || {};
@@ -80,6 +94,7 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
 
 /* ---------- Response Interceptor: 401 Refresh & Retry ---------- */
 let isRefreshing = false;
