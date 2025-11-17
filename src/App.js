@@ -9,9 +9,9 @@ import Post from './pages/Community/Post/Post';
 import PostWrite from './pages/Community/Post/PostWrite';
 import PostPage from './pages/Community/Post/PostPage';
 
-import PetPost from './pages/Community/PetPost/PetPost';
-import PetpostPage from './pages/Community/PetPost/PetpostPage';
-import PetpostWrite from './pages/Community/PetPost/petpostWrite';
+// import PetPost from './pages/Community/PetPost/PetPost';
+// import PetpostPage from './pages/Community/PetPost/PetpostPage';
+// import PetpostWrite from './pages/Community/PetPost/petpostWrite';
 import SearchMate from './pages/Community/PetPost/SearchMate';
 
 import MapPage from './pages/Map/MapPage';
@@ -70,9 +70,9 @@ function App() {
           <Route path="/post/:id" element={<PostPage />} />
           <Route path="/postWrite" element={<PostWrite />} />
 
-          <Route path="/petpost" element={<PetPost />} />
+          {/* <Route path="/petpost" element={<PetPost />} />
           <Route path="/petpostPage/:id" element={<PetpostPage />} />
-          <Route path="/petpostWrite" element={<PetpostWrite />} />
+          <Route path="/petpostWrite" element={<PetpostWrite />} /> */}
           <Route path="/searchMate" element={<SearchMate />} />
 
           <Route path="/login" element={<Login />} />
