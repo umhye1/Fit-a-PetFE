@@ -16,7 +16,7 @@ const FooterP = styled.div`
 export const Footer = () => {
   return (
     <FooterContainer>
-        <FooterP>Footer</FooterP>
+        <FooterP></FooterP>
     </FooterContainer>
   )
 }

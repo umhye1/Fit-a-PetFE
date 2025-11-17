@@ -327,7 +327,7 @@ const PetPostPage = () => {
                 </ImgContainer>
                 <RightTopCol>
                   <PetInfoContainer>
-                    <PetpostInfo petId={post?.petId ?? null}
+                    <PetPostInfo petId={post?.petId ?? null}
                     fetcher={post?.petId ? undefined : snapshotFetcher}
                   />
                   </PetInfoContainer>

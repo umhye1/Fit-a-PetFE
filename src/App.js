@@ -10,9 +10,9 @@ import PostWrite from './pages/Community/Post/PostWrite';
 import PostPage from './pages/Community/Post/PostPage';
 
 import PetPost from './pages/Community/PetPost/PetPost';
-import PetPostPage from './pages/Community/PetPost/PetPostPage';
 import PetPostWrite from './pages/Community/PetPost/PetPostWrite';
 import SearchMate from './pages/Community/PetPost/SearchMate';
+import PetPostPage from './pages/Community/PetPost/PetPostPage';
 
 import MapPage from './pages/Map/MapPage';
 
@@ -73,7 +73,7 @@ function App() {
           <Route path="/petpost" element={<PetPost/>}/>
           <Route path="/petpostPage/:id" element={<PetPostPage/>}/>
           <Route path="/searchMate" element={<SearchMate />} />
-          <Route pate="/petpostWrite" element={<PetPostWrite/>}/>
+          <Route path="/petpostWrite" element={<PetPostWrite/>}/>
 
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup/>} />
