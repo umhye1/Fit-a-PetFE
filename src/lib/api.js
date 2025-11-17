@@ -2,19 +2,16 @@ import axios from 'axios';
 
 /* ======================= BaseURL ======================= */
 
-// 로컬에서는 Spring Boot 서버로 직접 호출
-const DEV_BASE =
-  process.env.REACT_APP_API_BASE_URL || 'http://3.37.117.222:8080';
+// 로컬에서는 스프링 부트 서버로 직접
+const DEV_BASE = 'http://3.37.117.222:8080';
 
-// 배포(production)에서는 프론트 도메인(=Vercel) 기준으로 '' 사용
-// → axios 요청: /api/..., /posts..., /trails...
-// → vercel.json 리라이트가 백엔드로 프록시
+// 배포(production)에서는 프론트 도메인 기준으로 '' (상대경로)
 export const API_BASE_URL =
-  process.env.NODE_ENV === 'production' ? '' : DEV_BASE;
+  process.env.NODE_ENV === 'production'
+    ? ''            // => ex) /api/users/login
+    : (process.env.REACT_APP_API_BASE_URL || DEV_BASE);
 
 console.log('[API] base =', API_BASE_URL);
-
-/* ======================= Axios Instance ======================= */
 
 const PETS_BASE = '/api/mypage/pet';
 console.log('[API] base =', API_BASE_URL);
@@ -65,13 +62,16 @@ export const api = axios.create({
 api.interceptors.request.use((config) => {
   const url = config.url || '';
 
-  // 토큰 안 붙일 경로들
-  const noAuthPaths = [
-    '/api/users/login',
-    '/api/users/signup',
-    '/api/users/email',
-    '/api/users/email/verify',
-  ];
+const noAuthPaths = [
+  '/api/users/login',
+  '/api/users/signup',
+  '/api/users/email',
+  '/api/users/email/verify',
+];
+
+
+api.interceptors.request.use((config) => {
+  const url = config.url || '';
 
   if (noAuthPaths.some((p) => url.startsWith(p))) {
     return config;
@@ -84,7 +84,6 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
-
 
 /* ---------- Response Interceptor: 401 Refresh & Retry ---------- */
 let isRefreshing = false;
