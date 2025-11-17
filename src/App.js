@@ -31,7 +31,6 @@ import FindPassword from './pages/Login/FindPassword';
 import MyPetRoom from './pages/MyPetRoom/MyPetRoom';
 import { AuthProvider } from './pages/Login/AuthContext';
 import MyPage from './pages/MyPage/MyPage';
-import PetPost from './pages/Community/Petpost/Petpost';
 
 
 function App() {
