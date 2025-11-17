@@ -1,36 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "http://3.37.117.222:8080/api/:path*"
-    },
-    {
-      "source": "/trails/:path*",
-      "destination": "http://3.37.117.222:8080/trails/:path*"
-    },
-    {
-      "source": "/posts/:path*",
-      "destination": "http://3.37.117.222:8080/posts/:path*"
-    },
-    {
-      "source": "/petposts/:path*",
-      "destination": "http://3.37.117.222:8080/petposts/:path*"
-    },
-    {
-      "source": "/files/:path*",
-      "destination": "http://3.37.117.222:8080/files/:path*"
-    },
-    {
-      "source": "/api/image/:path*",
-      "destination": "http://3.37.117.222:8080/api/image/:path*"
-    },
-    {
-      "source": "/api/mypage/:path*",
-      "destination": "http://3.37.117.222:8080/api/mypage/:path*"
-    },
-    {
-      "source": "/api/users/:path*",
-      "destination": "http://3.37.117.222:8080/api/users/:path*"
+      "source": "/api-proxy/:path*",
+      "destination": "http://3.37.117.222:8080/:path*"
     }
   ]
 }

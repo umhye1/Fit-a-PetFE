@@ -12,13 +12,14 @@ if (typeof window !== 'undefined') {
   const isVercelHost = window.location.hostname.includes('vercel.app');
 
   if (isHttps && isVercelHost) {
-    resolvedBase = '/api';
+    resolvedBase = '/api-proxy';
   }
 }
 
 export const API_BASE_URL = resolvedBase;
 
 console.log('[API] base =', API_BASE_URL);
+
 
 const PETS_BASE = '/api/mypage/pet';
 console.log('[API] base =', API_BASE_URL);
