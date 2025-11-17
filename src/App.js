@@ -9,9 +9,9 @@ import Post from './pages/Community/Post/Post';
 import PostWrite from './pages/Community/Post/PostWrite';
 import PostPage from './pages/Community/Post/PostPage';
 
-// import PetPost from './pages/Community/PetPost/PetPost';
-// import PetpostPage from './pages/Community/PetPost/PetpostPage';
-// import PetpostWrite from './pages/Community/PetPost/petpostWrite';
+import PetPost from './pages/Community/PetPost/PetPost';
+import PetPostPage from './pages/Community/PetPost/PetPostPage';
+import PetPostWrite from './pages/Community/PetPost/PetPostWrite';
 import SearchMate from './pages/Community/PetPost/SearchMate';
 
 import MapPage from './pages/Map/MapPage';
@@ -31,6 +31,7 @@ import FindPassword from './pages/Login/FindPassword';
 import MyPetRoom from './pages/MyPetRoom/MyPetRoom';
 import { AuthProvider } from './pages/Login/AuthContext';
 import MyPage from './pages/MyPage/MyPage';
+import PetPost from './pages/Community/Petpost/Petpost';
 
 
 function App() {
@@ -70,10 +71,10 @@ function App() {
           <Route path="/post/:id" element={<PostPage />} />
           <Route path="/postWrite" element={<PostWrite />} />
 
-          {/* <Route path="/petpost" element={<PetPost />} />
-          <Route path="/petpostPage/:id" element={<PetpostPage />} />
-          <Route path="/petpostWrite" element={<PetpostWrite />} /> */}
+          <Route path="/petpost" element={<PetPost/>}/>
+          <Route path="/petpostPage/:id" element={<PetPostPage/>}/>
           <Route path="/searchMate" element={<SearchMate />} />
+          <Route pate="/petpostWrite" element={<PetPostWrite/>}/>
 
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup/>} />
