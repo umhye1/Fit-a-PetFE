@@ -35,7 +35,7 @@ const WeatherWidget = () => {
       const baseDate = today.toISOString().slice(0, 10).replace(/-/g, '');
       const baseTime = getBaseTime(); // 또는 가까운 발표 시각으로 설정
 
-      const url = `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${serviceKey}&numOfRows=100&pageNo=1&dataType=JSON&base_date=${baseDate}&base_time=${baseTime}&nx=${x}&ny=${y}`;
+      const url = '/weather-api/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${serviceKey}&numOfRows=100&pageNo=1&dataType=JSON&base_date=${baseDate}&base_time=${baseTime}&nx=${x}&ny=${y}';
 
       try {
         const response = await fetch(url);
