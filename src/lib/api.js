@@ -59,16 +59,12 @@ export const api = axios.create({
 });
 
 /* ---------- Request Interceptor: Bearer ---------- */
-api.interceptors.request.use((config) => {
-  const url = config.url || '';
-
 const noAuthPaths = [
   '/api/users/login',
   '/api/users/signup',
   '/api/users/email',
   '/api/users/email/verify',
 ];
-
 
 api.interceptors.request.use((config) => {
   const url = config.url || '';
@@ -82,8 +78,11 @@ api.interceptors.request.use((config) => {
     config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
+
+
 
 /* ---------- Response Interceptor: 401 Refresh & Retry ---------- */
 let isRefreshing = false;
