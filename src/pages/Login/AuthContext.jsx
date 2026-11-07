@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
-import { tokenStorage, refreshTokenStorage } from '../../lib/api';
+import { tokenStorage, refreshTokenStorage, serverLogout } from '../../lib/api';
 
 const AuthContext = createContext();
 
@@ -45,6 +45,26 @@ export const AuthProvider = ({ children }) => {
       }
     }
   }, []); // 최초 1회
+
+  useEffect(() => {
+    const syncSession = () => {
+      const loggedIn = !!tokenStorage.get();
+      setIsLoggedIn(loggedIn);
+      if (!loggedIn) {
+        setMe(null);
+        localStorage.removeItem(ME_KEY);
+      } else {
+        try { setMe(JSON.parse(localStorage.getItem(ME_KEY) || 'null')); }
+        catch { setMe(null); }
+      }
+    };
+    window.addEventListener('fitapet:session-ended', syncSession);
+    window.addEventListener('storage', syncSession);
+    return () => {
+      window.removeEventListener('fitapet:session-ended', syncSession);
+      window.removeEventListener('storage', syncSession);
+    };
+  }, []);
 
   // 공통 저장 유틸
   const persistMe = (profile) => {
@@ -93,11 +113,13 @@ export const AuthProvider = ({ children }) => {
 
   // ------- 로그아웃 -------
   const logout = () => {
+    const pending = serverLogout();
     tokenStorage.clear();
     refreshTokenStorage.clear();
     setIsLoggedIn(false);
     setMe(null);
     localStorage.removeItem(ME_KEY);
+    return pending.catch(() => { window.alert('이 기기의 로그인 정보는 지웠지만 서버 로그아웃을 확인하지 못했습니다.'); });
   };
 
   // 값 메모이즈

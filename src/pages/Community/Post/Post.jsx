@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Link , useNavigate , useLocation} from 'react-router-dom';
 import RecommendWalkMate from '../RecommendWalkMate/RecommendWalkMate';
 import { useAuth } from '../../../pages/Login/AuthContext';
-import { listPosts } from '../../../lib/api';
+import { listPostPage } from '../../../lib/api';
 
 
 const CommunityContainer = styled.div`
@@ -136,14 +136,21 @@ const Post = () => {
     const [category, setCategory] = useState('FREE');
     const [rows, setRows] = useState([]); // 서버에서 받아온 목록
     const [loading, setLoading] = useState(false);
+    const [next, setNext] = useState(null);
+    const categoryRef = useRef(category);
+    categoryRef.current = category;
 
     useEffect(() => {
         let mounted = true;
         const fetchList = async () => {
             setLoading(true);
+            setNext(null);
             try {
-                const data = await listPosts({ category, page: 0, size: 10 });
-                if (mounted) setRows(Array.isArray(data) ? data : (data?.content ?? []));
+                const data = await listPostPage({ category, size: 20 });
+                if (mounted) {
+                    setRows(data.items);
+                    setNext(data.hasNext ? { cursorDate: data.nextDate, cursorId: data.nextId } : null);
+                }
             } catch (e) {
                 const status = e?.response?.status;
                 if (status === 401) {
@@ -167,6 +174,22 @@ const Post = () => {
                 navigate('/postPage');  
             };
         }, [category, navigate, location]);
+
+    const loadMore = async () => {
+        if (!next || loading) return;
+        const selected = category;
+        setLoading(true);
+        try {
+            const data = await listPostPage({ category: selected, ...next, size: 20 });
+            if (categoryRef.current !== selected) return;
+            setRows((old) => [...old, ...data.items.filter((item) => !old.some((p) => p.post_id === item.post_id))]);
+            setNext(data.hasNext ? { cursorDate: data.nextDate, cursorId: data.nextId } : null);
+        } catch (error) {
+            window.alert('게시글을 불러오지 못했습니다. 다시 시도해 주세요.');
+        } finally {
+            if (categoryRef.current === selected) setLoading(false);
+        }
+    };
 
     const handleWriteClick = (e) => {
         if (!isLoggedIn) {
@@ -212,6 +235,7 @@ const Post = () => {
                     </FeedP>
                     </FeedBox>
                 ))}
+                {next && <button type="button" disabled={loading} onClick={loadMore}>더 보기</button>}
             </FeedContainer>
         </MainContainer>
     </CommunityContainer>
