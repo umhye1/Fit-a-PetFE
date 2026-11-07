@@ -3,7 +3,7 @@ import axios from 'axios';
 /* ======================= BaseURL ======================= */
 
 // 로컬에서는 스프링 부트 서버로 직접
-const DEV_BASE = 'http://3.37.117.222:8080';
+const DEV_BASE = 'http://localhost:8080';
 
 // 배포(production)에서는 프론트 도메인 기준으로 '' (상대경로)
 export const API_BASE_URL =
@@ -85,99 +85,80 @@ api.interceptors.request.use((config) => {
 
 
 /* ---------- Response Interceptor: 401 Refresh & Retry ---------- */
-let isRefreshing = false;
-let pendingQueue = [];
+const getSessionId = (token) => {
+  try { return JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))).sid; }
+  catch { return null; }
+};
 
-const runQueue = (error, token) => {
-  pendingQueue.forEach(({ resolve, reject }) =>
-    error ? reject(error) : resolve(token)
-  );
-  pendingQueue = [];
+let refreshPromise = null;
+
+const refreshOnce = (expectedRefresh, expectedAccess) => {
+  const perform = async () => {
+    const current = refreshTokenStorage.get();
+    if (!current) throw new Error('Session ended');
+    // Another tab rotated while we waited for the cross-tab lock.
+    if (current !== expectedRefresh) {
+      const access = tokenStorage.get();
+      if (!access || !getSessionId(expectedAccess) || getSessionId(access) !== getSessionId(expectedAccess))
+        throw new Error('Session changed');
+      return access;
+    }
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/refresh`,
+        { refreshToken: current }, { timeout: 15000 });
+      const pair = response.data?.data || response.data;
+      if (!pair?.accessToken || !pair?.refreshToken) throw new Error('Invalid refresh response');
+      // A late response must not restore a logged-out or replaced session.
+      if (refreshTokenStorage.get() !== current) throw new Error('Session changed');
+      tokenStorage.set(pair.accessToken);
+      refreshTokenStorage.set(pair.refreshToken);
+      return pair.accessToken;
+    } catch (error) {
+      if (refreshTokenStorage.get() === current) {
+        tokenStorage.clear();
+        refreshTokenStorage.clear();
+        window.dispatchEvent(new Event('fitapet:session-ended'));
+      }
+      throw error; // No replay after timeouts or lost responses; require sign-in.
+    }
+  };
+  // Web Locks serialize refreshes between tabs on browsers that support them.
+  return navigator?.locks
+    ? navigator.locks.request('fit-a-pet-refresh', perform)
+    : perform();
 };
 
 api.interceptors.response.use(
-  (res) => res,
+  (response) => response,
   async (error) => {
-    const original = error?.config || {};
-    const status = error?.response?.status;
-
-    // 가드: status 없거나 refresh 엔드포인트면 탈출
-    if (!status) return Promise.reject(error);
-    if (original._retry || original.url?.includes('/api/auth/refresh')) {
-      return Promise.reject(error);
+    const original = error?.config;
+    if (!original || error?.response?.status !== 401 || original._retry ||
+        noAuthPaths.some((p) => original.url?.startsWith(p)) ||
+        original.url?.startsWith('/api/users/logout') || original.url?.startsWith('/api/auth/refresh')) {
+      throw error;
     }
-
-    // 401만 처리
-    if (status !== 401) return Promise.reject(error);
-
-    // refresh 없으면 종료
+    original._retry = true;
+    // An older request can fail after a different request already rotated.
+    const latest = tokenStorage.get();
+    const sent = original.headers?.Authorization;
+    if (latest && sent && getSessionId(sent.replace(/^Bearer /, '')) !== getSessionId(latest)) throw error;
+    if (latest && sent && sent !== `Bearer ${latest}`) {
+      original.headers.Authorization = `Bearer ${latest}`;
+      return api(original);
+    }
     const refresh = refreshTokenStorage.get();
     if (!refresh) {
       tokenStorage.clear();
-      refreshTokenStorage.clear();
-      return Promise.reject(error);
+      window.dispatchEvent(new Event('fitapet:session-ended'));
+      throw error;
     }
-
-    original._retry = true;
-
-    // 이미 갱신 중이면 큐에 넣고 대기
-    if (isRefreshing) {
-      return new Promise((resolve, reject) => {
-        pendingQueue.push({
-          resolve: (newToken) => {
-            original.headers = original.headers || {};
-            original.headers.Authorization = `Bearer ${newToken}`;
-            resolve(api(original));
-          },
-          reject,
-        });
-      });
+    if (!refreshPromise) {
+      refreshPromise = refreshOnce(refresh, latest).finally(() => { refreshPromise = null; });
     }
-
-    isRefreshing = true;
-    try {
-      /* 1차: 헤더 방식 */
-      const first = await axios.post(
-        `${API_BASE_URL}/api/auth/refresh`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${tokenStorage.get() || ''}`,
-            refresh: `Bearer ${refresh}`,
-          },
-        }
-      );
-
-      let newAccessToken =
-        first?.data?.accessToken || first?.data?.data?.accessToken;
-
-      /* 2차: 바디 방식 재시도 */
-      if (!newAccessToken) {
-        const second = await axios.post(`${API_BASE_URL}/api/auth/refresh`, {
-          refreshToken: refresh,
-        });
-        newAccessToken =
-          second?.data?.accessToken || second?.data?.data?.accessToken;
-      }
-
-      if (!newAccessToken) {
-        throw new Error('No accessToken from refresh');
-      }
-
-      tokenStorage.set(newAccessToken);
-      runQueue(null, newAccessToken);
-
-      original.headers = original.headers || {};
-      original.headers.Authorization = `Bearer ${newAccessToken}`;
-      return api(original);
-    } catch (e) {
-      runQueue(e, null);
-      tokenStorage.clear();
-      refreshTokenStorage.clear();
-      return Promise.reject(e);
-    } finally {
-      isRefreshing = false;
-    }
+    const access = await refreshPromise;
+    original.headers = original.headers || {};
+    original.headers.Authorization = `Bearer ${access}`;
+    return api(original);
   }
 );
 
@@ -191,20 +172,17 @@ export function getErrorMessage(err, fallback = '요청 처리 중 오류가 발
 /* ======================= 개발용 로그 ======================= */
 if (process.env.NODE_ENV !== 'production') {
   api.interceptors.request.use((config) => {
-    console.log('[REQ]', config.method?.toUpperCase(), config.baseURL + config.url, {
-      headers: config.headers,
-      data: config.data,
-    });
+    console.log('[REQ]', config.method?.toUpperCase(), config.url);
     return config;
   });
   api.interceptors.response.use(
     (res) => {
-      console.log('[RES]', res.status, res.config.url, res.data);
+      console.log('[RES]', res.status, res.config.url);
       return res;
     },
     (err) => {
       const r = err.response;
-      console.error('[ERR]', r?.status, r?.config?.url, r?.data || err.message);
+      console.error('[ERR]', r?.status, r?.config?.url);
       return Promise.reject(err);
     }
   );
@@ -260,7 +238,7 @@ export const login = (payload) =>
   api.post('/api/users/login', payload).then((r) => r.data);
 
 export const serverLogout = () =>
-  api.post('/api/users/logout').then((r) => r.data);
+  api.post('/api/users/logout', null, { headers: { Authorization: `Bearer ${tokenStorage.get() || ''}` } }).then((r) => r.data);
 
 // === 글 작성 PostWrite (이미지 없으면 JSON, 있으면 multipart) ===
 // 요구: URL은 '/posts' 고정, 날짜는 ISO 사용
@@ -302,10 +280,10 @@ export const createPostWrite = async (payload, images = []) => {
 };
 
 // === 게시글 목록 조회 Post ===
-export const listPosts = async({category, page = 0, size =8} = {}) => {
+export const listPostPage = async({category, cursorDate, cursorId, size = 20} = {}) => {
   const params= {
     ...(category ? { categoryType: category } : {}),
-    page, size,
+    ...(cursorDate && cursorId ? { cursorDate, cursorId } : {}), size,
   };
   const { data } = await api.get('/posts', {params});
   
@@ -333,13 +311,10 @@ export const listPosts = async({category, page = 0, size =8} = {}) => {
     _raw: p, // 디버깅용(화면에 안 씀)
   }));
 
-  if (process.env.NODE_ENV !== 'production') {
-    console.log('[LIST /posts] params:', params);
-    console.log('[LIST /posts] raw:', data);
-    console.log('[LIST /posts] normalized:', rows);
-  }
-  return rows;
+  const page = data?.data || data;
+  return { items: rows, hasNext: !!page?.hasNext, nextDate: page?.nextDate, nextId: page?.nextId };
 };
+export const listPosts = async (options) => (await listPostPage(options)).items;
 
 // === 단건 조회 PostPage ===
 export const getPost = (id) =>
